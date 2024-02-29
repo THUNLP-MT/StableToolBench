@@ -1,0 +1,11 @@
+Method,WinRate,G1_instruction_WinRate,G1_tool_WinRate,G1_category_WinRate,G2_instruction_WinRate,G2_category_WinRate,G3_instruction_WinRate
+GPT4-DFSDT,70.4,60,71.5,67,79.5,77.5,71
+GPT4-ReACT,64.4,53.5,50,53.5,67,72,47
+ChatGPT-DFSDT,64.3,54.5,65,60.5,75,71.5,62
+ToolLLaMA-DFSDT-Retriever,63.1,64,64,60.5,81.5,68.5,65
+ToolLLaMA-DFSDT,60,57,61,62,77,77,66
+ChatGPT-ReACT,50,41.5,44,44.5,42.5,46.5,22
+Text-Davinci-003-DFSDT,46.3,43.5,44,46,37,42,46
+Claude-2-DFSDT,43.5,20.5,31,18.5,17,20.5,28
+Claude-2-ReACT,34.4,5.5,3.5,5.5,6,6,14
+Text-Davinci-003-ReACT,33.2,12,20,20,8.5,14.5,24
