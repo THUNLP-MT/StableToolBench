@@ -44,6 +44,7 @@ class OpenaiPoolRequest:
                 'api_type':os.environ.get('OPENAI_TYPE',None),
                 'api_version':os.environ.get('OPENAI_VER',None)
             })
+            self.now_pos = random.randint(-1, len(self.pool))
 
     # @retry(wait=wait_random_exponential(multiplier=1, max=30), stop=stop_after_attempt(10),reraise=True)
     def request(self,messages,**kwargs):

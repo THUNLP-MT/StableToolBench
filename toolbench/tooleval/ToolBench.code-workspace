@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../../ToolBench"
+		},
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../STC/RapidAPI-Server"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}

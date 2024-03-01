@@ -16,14 +16,11 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
-
+config_file='config.yml'
+CONFIG = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
+CACHE_FOLDER = CONFIG['cache_folder']
 # OpenAI API
 from openai import OpenAI
-OPENAI_API_KEY = 'openchat'
-OPENAI_API_BASE = 'https://api.01ww.xyz/v1'
-BASE_MODEL = 'gpt-4-turbo-preview'
-true_url = "http://8.218.239.54:8080/rapidapi"
-tools_folder = './tools'
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -81,17 +78,17 @@ def get_virtual_response(request: Request, info: Info):
             print(tool_input)
             response_dict = {"error": f"Tool input parse error...\n", "response": ""}
             return response_dict
-    if not os.path.exists("tool_response_cache"):
-        os.mkdir("tool_response_cache")
+    if not os.path.exists(CACHE_FOLDER):
+        os.mkdir(CACHE_FOLDER)
 
     # load from cache
     cache = {}
     # prerequisite: to read files correctly, "my_tools_cache" folder and "toolenv/tools/" folder should be available
     try:
-        if os.path.exists(os.path.join("tool_response_cache/", standard_category)):
-            if os.path.exists(os.path.join("tool_response_cache/", standard_category, tool_name)):
-                if os.path.exists(os.path.join("tool_response_cache/", standard_category, tool_name, api_name+".json")):
-                    tools_cache_record = json.load(open(os.path.join("tool_response_cache/", standard_category, tool_name, api_name+".json"), "r"))
+        if os.path.exists(os.path.join(CACHE_FOLDER, standard_category)):
+            if os.path.exists(os.path.join(CACHE_FOLDER, standard_category, tool_name)):
+                if os.path.exists(os.path.join(CACHE_FOLDER, standard_category, tool_name, api_name+".json")):
+                    tools_cache_record = json.load(open(os.path.join(CACHE_FOLDER, standard_category, tool_name, api_name+".json"), "r"))
                     cache.update(tools_cache_record)
                     if str(tool_input) in cache:
                         print("using cached real response")
@@ -123,14 +120,15 @@ def get_virtual_response(request: Request, info: Info):
         "toolbench_key": user_key
     }
     
-    real_response = requests.post(true_url, headers=headers, data=json.dumps(data))
+    real_response = requests.post(CONFIG['rapidapi_url'], headers=headers, data=json.dumps(data))
 
     # Check if the request was successful
     if real_response.status_code == 200:
         real_response = real_response.json() 
         if check_result(real_response):
             print("returning real_response")
-            save_cache(cache, tool_input, real_response, standard_category, tool_name, api_name)
+            if CONFIG['is_save']:
+                save_cache(cache, tool_input, real_response, standard_category, tool_name, api_name)
             return real_response
 
     """
@@ -146,10 +144,10 @@ def get_virtual_response(request: Request, info: Info):
         'api_info': "",
     }
     try:
-        if os.path.exists(os.path.join(tools_folder, standard_category)):
-            if os.path.exists(os.path.join(tools_folder, standard_category, tool_name_original.split("_for_")[0]+".json")):
+        if os.path.exists(os.path.join(CONFIG['tools_folder'], standard_category)):
+            if os.path.exists(os.path.join(CONFIG['tools_folder'], standard_category, tool_name_original.split("_for_")[0]+".json")):
                 # read json
-                api_intro = json.load(open(os.path.join(tools_folder, standard_category, tool_name_original.split("_for_")[0]+".json"), "r"))
+                api_intro = json.load(open(os.path.join(CONFIG['tools_folder'], standard_category, tool_name_original.split("_for_")[0]+".json"), "r"))
                 # get tool_dexcription and api_info
                 tool_description = api_intro['tool_description']
                 api_info = []
@@ -184,7 +182,8 @@ def get_virtual_response(request: Request, info: Info):
     result = fake_response_function_chat(api_example,tool_input,api_doc)
     print(f"fake result: {result}")
 
-    save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder="tool_response_cache")
+    if CONFIG['is_save']:
+        save_cache(cache, tool_input, result, standard_category, tool_name, api_name)
 
     if not isinstance(result, dict):
         return json.loads(result)
@@ -227,7 +226,7 @@ def check_result(processes_value: dict):
         return False
     return True
 
-def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder):
+def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder=CACHE_FOLDER):
     # save cache
     try:
         if isinstance(result, dict):
@@ -273,17 +272,18 @@ Note that:
     user_prompt = "API Documentation:"+str(api_doc)+"\n"+"API Examples:"+str(api_example)[:2048]+"\n"+"API Input:"+str(tool_input)+"\n"
     user_prompt = {"role": "user", "content": user_prompt}
     client = OpenAI(
-        api_key = OPENAI_API_KEY,
-        base_url = OPENAI_API_BASE,
+        api_key = CONFIG['api_key'],
+        base_url = CONFIG['api_base'],
     )
     max_retries = 3 
     flag = False
     for attempt in range(max_retries):
         response = client.chat.completions.create(
-            model = BASE_MODEL,
+            model = CONFIG['model'],
             messages=[system_prompt, user_prompt],
             max_tokens = 2048,
-            response_format = { "type": "json_object" }
+            response_format = { "type": "json_object" },
+            temperature=CONFIG['temperature']
         )
         result = response.choices[0].message.content
         if "```json" in result:

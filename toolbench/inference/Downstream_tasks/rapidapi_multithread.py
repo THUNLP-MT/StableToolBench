@@ -352,7 +352,7 @@ You have access of the following tools:\n'''
                     else:
                         time.sleep(2) # rate limit: 30 per minute
                         headers = {"toolbench_key": self.toolbench_key}
-                        timeout = None if self.service_url.endswith("fake_rapidapi") else 15
+                        timeout = None if self.service_url.endswith("virtual") else 15
                         try:
                             response = requests.post(self.service_url, json=payload, headers=headers, timeout=timeout)
                         except requests.exceptions.Timeout:

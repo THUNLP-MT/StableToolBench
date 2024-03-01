@@ -29,26 +29,14 @@ def parse_args():
 def write_results(filename: str, reference_model: str, label_cnt: dict) -> None:
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file, delimiter="\t")
-        writer.writerow(["query", "solvable", "available_tools", "model_intermediate_steps", "model_final_step", "model", "query_id", "is_solved", "pass_rate_label", "reason", "not_hallucinate"])
+        writer.writerow(["query", "available_tools", "model_intermediate_steps", "model_final_step", "model", "query_id", "is_solved", ])
         for query_id in label_cnt:
-            if label_cnt[query_id]["passed"] > label_cnt[query_id]["failed"]:
-                final_label = "passed"
-            elif label_cnt[query_id]["passed"] < label_cnt[query_id]["failed"]:
-                final_label = "failed"
-            else:
-                if random.random() < 0.5: # if tie, random choose
-                    final_label = "passed"
-                else:
-                    final_label = "failed"
             query = label_cnt[query_id]["query"]
-            task_solvable = label_cnt[query_id]["task_solvable"]
             tool_names = label_cnt[query_id]["tool_names"]
             answer_steps = label_cnt[query_id]["answer_steps"]
             final_step = label_cnt[query_id]["final_step"]
             is_solved = label_cnt[query_id]["is_solved"]
-            reason = label_cnt[query_id]["reason"]
-            not_hallucinate = label_cnt[query_id]["not_hallucinate"]
-            writer.writerow([query, task_solvable, tool_names, answer_steps, final_step, reference_model, query_id, is_solved, final_label, reason, not_hallucinate])
+            writer.writerow([query, tool_names, answer_steps, final_step, reference_model, query_id, is_solved,])
             
 
 if __name__ == "__main__":
@@ -59,17 +47,10 @@ if __name__ == "__main__":
     def compute_pass_rate(query_id, example, evaluate_time):
         global evaluators
         evaluator = random.choice(evaluators)
-        try:
-            not_hallucinate = evaluator.check_has_hallucination(
-            example['available_tools'],
-            example['answer']
-            )
-        except:
-            not_hallucinate = True
         answer_steps, final_step = get_steps(example)
         
         if "'name': 'Finish'" not in final_step:
-            return query_id, TaskStatus.Solvable, AnswerStatus.Unsolved, "failed", "No answer", not_hallucinate, evaluate_time
+            return query_id, AnswerStatus.Unsolved, evaluate_time
         
         is_solved, is_solved_reason = evaluator.check_is_solved(
             {
@@ -79,44 +60,9 @@ if __name__ == "__main__":
             example['answer'],
             return_reason=True
         )
-        if is_solved == AnswerStatus.Solved:
-            is_solved_flag = True
-        elif is_solved == AnswerStatus.Unsolved:
-            is_solved_flag = False
-        else:
-            is_solved_flag = False
 
-        task_solvable, task_solvable_reason = evaluator.check_task_solvable(
-            {
-                'query':example['query'],
-                'available_tools':example['available_tools'],
-            },
-            has_been_solved=is_solved_flag,
-            return_reason=True
-        )
-
-        is_passed = evaluator.is_passed(
-            {
-                'query':example['query'],
-                'available_tools':example['available_tools'],
-            },
-            example['answer'],
-            answer_status=is_solved,
-            task_status=task_solvable
-        )
-
-        reason = f"Is solved: {is_solved_reason}\nTask solvable: {task_solvable_reason}"
-        if is_passed == AnswerPass.Passed:
-            label = "passed"
-        elif is_passed == AnswerPass.Failed:
-            label = "failed"
-        else:
-            if random.random() < 0.5: # if unsure, random choose
-                label = "passed"
-            else:
-                label = "failed"
-        # print(evaluate_time)
-        return query_id, task_solvable, is_solved, label, reason, not_hallucinate, evaluate_time
+        # return query_id, task_solvable, is_solved, label, reason, not_hallucinate, evaluate_time
+        return query_id, is_solved, evaluate_time
         
     reference_model = args.reference_model
     output_list = []
@@ -148,11 +94,7 @@ if __name__ == "__main__":
                     ))
 
             for thd in tqdm(as_completed(future),total=len(future),ncols=100):
-                # try:
-                query_id, task_solvable, is_solved, machine_label, reason, not_hallucinate, evaluate_time = thd.result()
-                # except:
-                    # import pdb; pdb.set_trace()
-                    # pass
+                query_id, is_solved, evaluate_time = thd.result()
                 example = reference_examples[query_id]
                 query = example["query"]
                 tool_names = []
@@ -161,37 +103,20 @@ if __name__ == "__main__":
                     tool_names.append(tool_name)
                 answer_steps, final_step = get_steps(example)
                 if query_id not in label_cnt:
-                    label_cnt[query_id] = {"passed":0, "failed":0}
-                if machine_label == "passed":
-                    label_cnt[query_id]["passed"] += 1
-                else:
-                    label_cnt[query_id]["failed"] += 1
+                    label_cnt[query_id] = {}
                 label_cnt[query_id]["query"] = query
-                label_cnt[query_id]["task_solvable"] = str(task_solvable)
                 label_cnt[query_id]["tool_names"] = tool_names
                 label_cnt[query_id]["answer_steps"] = answer_steps
                 label_cnt[query_id]["final_step"] = final_step
-                # label_cnt[query_id]["is_solved"] = str(is_solved)
                 if 'is_solved' not in label_cnt[query_id]:
                     label_cnt[query_id]["is_solved"] = {}
                 label_cnt[query_id]["is_solved"][evaluate_time] = str(is_solved)
-                label_cnt[query_id]["reason"] = reason
-                label_cnt[query_id]["not_hallucinate"] = not_hallucinate
                 json.dump(label_cnt, open(f"{args.save_path}/{test_set}_{reference_model}.json", "w"), ensure_ascii=False, indent=4)
         json.dump(label_cnt, open(f"{args.save_path}/{test_set}_{reference_model}.json", "w"), ensure_ascii=False, indent=4)
         
         filename = f"{args.save_path}/{test_set}_{reference_model}.csv"
         write_results(filename, reference_model, label_cnt)
-        pass_rate = 0
-        for query_id in label_cnt:
-            if label_cnt[query_id]["failed"] <= label_cnt[query_id]["passed"]:
-                pass_rate += 1
-        pass_rate /= len(label_cnt)
-        
         scores = []
-        # for query_id in label_cnt:
-        #     random.shuffle(label_cnt[query_id]['is_solved'])
-        # import pdb; pdb.set_trace()
         for runtime in range(args.evaluate_times):
             score = 0 
             for query_id in label_cnt:
@@ -210,7 +135,7 @@ if __name__ == "__main__":
     
 
         
-        print(f"Test set: {test_set}. Model: {reference_model}. Pass rate: {str(pass_rate)}")
+        print(f"Test set: {test_set}. Model: {reference_model}.")
         solve_rate = sum(scores) / len(scores) * 100
         std_dev = np.std(scores).item() * 100
         print(f"Solve rate: {solve_rate:.1f}% Std: {std_dev:.1f}%")
