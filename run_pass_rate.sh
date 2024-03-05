@@ -2,8 +2,6 @@ cd  toolbench/tooleval
 export API_POOL_FILE=../../openai_key.json
 export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
 export SAVE_PATH=../../data_example/pass_rate_results
-# export OPENAI_API_BASE="https://api.01ww.xyz/v1" 
-# export OPENAI_API_KEY=openchat
 mkdir -p ${SAVE_PATH}
 export CANDIDATE_MODEL=virtual_chatgpt_cot
 export EVAL_MODEL=gpt-4-turbo-preview

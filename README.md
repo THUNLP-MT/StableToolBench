@@ -25,9 +25,6 @@
 - **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing sigificant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. 
 - **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
 
-
-### Next Steps
-
 ## The Virtual API Server
 Our virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code.
 
@@ -69,7 +66,7 @@ Now you can run the server by running:
 cd server
 python main.py
 ```
-The server will be run at `http://0.0.0.0:{port}/virtual`. 
+The server will be run at `http://localhost:{port}/virtual`. 
 To use the server, you will further need a toolbench key. You can apply one from this [form](https://forms.gle/oCHHc8DQzhGfiT9r6).
 
 You can test the server with
@@ -98,33 +95,45 @@ print(response.text)
 ```
 
 
+## Solvable Queries
+The original queries are curated without considering the solvability but judging the solvability with ChatGPT on the fly will cause sigificant instability. Therefore, we judge the solvability of the original queries with majority vote of `gpt-4-turbo`, `gemini-pro` and `claude-2`. The filtered queries are saved in `solvable_queries`.
+
 
 ## Inference With Our StableToolBench Server
-We currently implemented all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`
+We currently implemented all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`. An example of results is shown in `data_example/answer`.
 
 To use ChatGPT, run:
 ```bash
 export TOOLBENCH_KEY=""
 export OPENAI_KEY=""
+export OPENAI_API_BASE="" 
 export PYTHONPATH=./
-python toolbench/inference/qa_pipeline.py \
-    --tool_root_dir data/toolenv/tools/ \
+export GPT_MODEL="gpt-3.5-turbo-16k"
+export SERVICE_URL="http://localhost:8080/virtual"
+export OUTPUT_DIR="data/answer/virtual_chatgpt_cot"
+group=G1_instruction
+mkdir -p $OUTPUT_DIR; mkdir -p $OUTPUT_DIR/$group
+
+python toolbench/inference/qa_pipeline_multithread.py \
+    --tool_root_dir toolenv/tools \
     --backbone_model chatgpt_function \
     --openai_key $OPENAI_KEY \
     --max_observation_length 1024 \
-    --method DFS_woFilter_w2 \
-    --input_query_file data/test_instruction/G1_instruction.json \
-    --output_answer_file chatgpt_dfs_inference_result \
-    --toolbench_key $TOOLBENCH_KEY
+    --method CoT@1 \
+    --input_query_file solvable_queries/test_instruction/${group}.json \
+    --output_answer_file $OUTPUT_DIR/$group \
+    --toolbench_key $TOOLBENCH_KEY \
+    --num_thread 1
 ```
 
 
 ## StableToolEval
+We basically follow the evaluation process of ToolBench. The difference is that we update the evaluation logic of Pass Rate and Win Rate, resulting in Solvable Pass Rate and Solvable Win Rate.
 
 
-#### Evaluation
-*If you want to reproduce the official results, download the reproduction data `reproduction_data.zip` through [Google Drive](https://drive.google.com/drive/folders/1yBUQ732mPu-KclJnuQELEhtKakdXFc3J), unzip it and put the `reproduction_data` under `ToolBench/data/`, and skip the data preparation process.*
-- Data preparation. To evaluate your own model and method using ToolEval, first you need to prepare all the model predictions for the six test subsets. Create a directory naming with your model and method, e.g. `chatgpt_cot` then put each test set's predictions under the directory. The file sturcture of the directory should be:
+The first step is prepare data. This step is the same as ToolEval in ToolBench.
+The following paragraph is adapted from ToolBench.
+To evaluate your own model and method using ToolEval, first you need to prepare all the model predictions for the six test subsets. Create a directory naming with your model and method, e.g. `chatgpt_cot` then put each test set's predictions under the directory. The file sturcture of the directory should be:
 ```
 ├── /chatgpt_cot/
 │  ├── /G1_instruction/
@@ -141,77 +150,84 @@ python toolbench/inference/qa_pipeline.py \
 
 Then preprocess the predictions by running the following commands:
 ```bash
-export RAW_ANSWER_PATH=../../data/reproduction_data/model_predictions/
-export CONVERTED_ANSWER_PATH=../../data/reproduction_data/model_predictions_converted/
-export MODEL_NAME=chatgpt_cot
-export METHOD=CoT
-mkdir ${CONVERTED_ANSWER_PATH}/${MODEL_NAME}
-for test_set in G1_instruction G1_category G1_tool G2_category G2_instruction G3_instruction
-do
-    answer_dir=${RAW_ANSWER_PATH}/${MODEL_NAME}/${test_set}
-    output_file=${CONVERTED_ANSWER_PATH}/${MODEL_NAME}/${test_set}.json
-    python convert_to_answer_format.py\
-        --answer_dir ${answer_dir} \
-        --method ${METHOD} \
-        --output ${output_file}
-done
-```
-After that, check if there are preprocessed json files for the test sets under `${CONVERTED_ANSWER_PATH}/${MODEL_NAME}`. If so, you're ready to run the following evaluate process. If not, check if there is anything wrong with the model's predictions.
+cd toolbench/tooleval
+export RAW_ANSWER_PATH=../../data_example/answer
+export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
+export MODEL_NAME=virtual_chatgpt_cot
+export test_set=G1_instruction
 
-- OpenAI Key. Prepare your openai key to use our evaluator. The key(s) should be stored in a json file, e.g. `path/to/your/openai_key_json_file.json`:
+mkdir -p ${CONVERTED_ANSWER_PATH}/${MODEL_NAME}
+answer_dir=${RAW_ANSWER_PATH}/${MODEL_NAME}/${test_set}
+output_file=${CONVERTED_ANSWER_PATH}/${MODEL_NAME}/${test_set}.json
+
+python convert_to_answer_format.py\
+    --answer_dir ${answer_dir} \
+    --method CoT@1 # DFS_woFilter_w2 for DFS \
+    --output ${output_file}
+```
+
+
+Next you can calculate the Solvable Pass Rate. Before running the process, you need to specify your evaluation OpenAI key in `openai_key.json` as follows:
 ```bash
 [
     {
-        "username": "your_user_name",
-        "passwd": "your_password",
         "api_key": "your_openai_key",
-        "organization": "your_organization"
+        "api_base": "your_organization"
     },
     ...
 ]
 ```
-
-- Pass rate:
+Then calculate SoPR with :
 ```bash
-export CONVERTED_ANSWER_PATH=../../data/reproduction_data/model_predictions_converted/
-export SAVE_PATH=pass_rate_results
-export CANDIDATE_MODEL=chatgpt_cot
-export API_POOL_FILE=path/to/your/openai_key_json_file.json
+cd  toolbench/tooleval
+export API_POOL_FILE=../../openai_key.json
+export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
+export SAVE_PATH=../../data_example/pass_rate_results
+mkdir -p ${SAVE_PATH}
+export CANDIDATE_MODEL=virtual_chatgpt_cot
+export EVAL_MODEL=gpt-4-turbo-preview
+mkdir -p ${SAVE_PATH}/${CANDIDATE_MODEL}
 
 python eval_pass_rate.py \
     --converted_answer_path ${CONVERTED_ANSWER_PATH} \
-    --save_path ${SAVE_PATH} \
+    --save_path ${SAVE_PATH}/${CANDIDATE_MODEL} \
     --reference_model ${CANDIDATE_MODEL} \
-    --test_ids ../../data/test_ids/ \
-    --max_eval_threads 20 \
-    --evaluate_times 7
+    --test_ids ../../solvable_queries_example/test_query_ids \
+    --max_eval_threads 35 \
+    --evaluate_times 3 \
+    --test_set G1_instruction 
 
 ```
+Note that we use `gpt-4-turbo-preview` as the standard evaluation model, which provided much better stability than `gpt-3.5` series models.
+
 The result files will be stored under the ${SAVE_PATH}.
 
-- Win rate. The below example take ChatGPT-ReACT as reference model and GPT4-ReACT as candidate model. Notice that you need to get both model's pass rate results first, then run the following commands to evaluate the preference result of GPT4-ReACT:
+Then you can calcualte the SoWR. The below example take ChatGPT-CoT as reference model and ChatGPT-DFS as candidate model. Note that you need to get both model's pass rate results first.
 ```bash
-export CONVERTED_ANSWER_PATH=../../data/reproduction_data/model_predictions_converted/
-export SAVE_PATH=preference_results
-export PASS_TARE_PATH=pass_rate_results
-export REFERENCE_MODEL=chatgpt_cot
-export CANDIDATE_MODEL=gpt-4-0613_cot
-export API_POOL_FILE=path/to/your/openai_key_json_file.json
+cd  toolbench/tooleval
+export API_POOL_FILE=../../openai_key.json
+export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
+export SAVE_PATH=../../data_example/preference_results
+export PASS_RATE_PATH=../../data_example/pass_rate_results
+export REFERENCE_MODEL=virtual_chatgpt_cot
+export CANDIDATE_MODEL=virtual_chatgpt_dfs
+export EVAL_MODEL=gpt-4-turbo-preview
+mkdir -p ${SAVE_PATH}
+
 
 python eval_preference.py \
     --converted_answer_path ${CONVERTED_ANSWER_PATH} \
     --reference_model ${REFERENCE_MODEL} \
     --output_model ${CANDIDATE_MODEL} \
-    --test_ids ../../data/test_ids/ \
+    --test_ids ../../solvable_queries_example/test_query_ids/ \
     --save_path ${SAVE_PATH} \
-    --pass_rate_result_path ${PASS_TARE_PATH} \
-    --max_eval_threads 20 \
+    --pass_rate_result_path ${PASS_RATE_PATH} \
+    --max_eval_threads 10 \
     --use_pass_rate true \
-    --evaluate_times 7
+    --evaluate_times 3 \
+    --test_set G1_instruction
 ```
 The result files will be stored under the ${SAVE_PATH}.
-
-Please refer to [ToolEval](https://github.com/OpenBMB/ToolBench/tree/master/toolbench/tooleval) for more details.
 
 ### 📊 Model Experiments Results
 

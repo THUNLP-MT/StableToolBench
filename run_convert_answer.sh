@@ -1,7 +1,7 @@
 cd toolbench/tooleval
 export RAW_ANSWER_PATH=../../data_example/answer
 export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
-export MODEL_NAME=virtual_chatgpt_dfs
+export MODEL_NAME=virtual_chatgpt_cot
 export test_set=G1_instruction
 
 mkdir -p ${CONVERTED_ANSWER_PATH}/${MODEL_NAME}

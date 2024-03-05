@@ -19,4 +19,4 @@ python eval_preference.py \
     --max_eval_threads 10 \
     --use_pass_rate true \
     --evaluate_times 3 \
-    --test_set G1_instruction --overwrite
+    --test_set G1_instruction 
