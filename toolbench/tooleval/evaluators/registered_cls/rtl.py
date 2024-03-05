@@ -197,7 +197,7 @@ class ReinforceToolLearningEvaluator(OpenAINormalizedEvaluator):
         else:
             raise ValueError(f'Index {index} not found!')
     
-    def normalized_openai_completions(self,task_description:Dict, answers:List[Dict[Any,Any]], task_status:None, answer_statuss:[None, None])->int:
+    def normalized_openai_completions(self,task_description:Dict, answers:List[Dict[Any,Any]], task_status:None, answer_statuss)->int:
         if answer_statuss[0] is None:
             # print("comparing from scratch...")
             status = [self.check_is_solved(task_description,ans)[0] for ans in answers]

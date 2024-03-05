@@ -18,9 +18,12 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 
 config_file='config.yml'
 CONFIG = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
+print(CONFIG)
 CACHE_FOLDER = CONFIG['cache_folder']
 # OpenAI API
-from openai import OpenAI
+import openai
+openai.api_base = CONFIG['api_base']
+openai.api_key = CONFIG['api_key']
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -271,17 +274,18 @@ Note that:
     # user prompt, truncated to 2048 characters if too long
     user_prompt = "API Documentation:"+str(api_doc)+"\n"+"API Examples:"+str(api_example)[:2048]+"\n"+"API Input:"+str(tool_input)+"\n"
     user_prompt = {"role": "user", "content": user_prompt}
-    client = OpenAI(
-        api_key = CONFIG['api_key'],
-        base_url = CONFIG['api_base'],
-    )
+
+    # client = OpenAI(
+    #     api_key = CONFIG['api_key'],
+    #     base_url = CONFIG['api_base'],
+    # )
     max_retries = 3 
     flag = False
     for attempt in range(max_retries):
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model = CONFIG['model'],
             messages=[system_prompt, user_prompt],
-            max_tokens = 2048,
+            max_tokens = 1024,
             response_format = { "type": "json_object" },
             temperature=CONFIG['temperature']
         )

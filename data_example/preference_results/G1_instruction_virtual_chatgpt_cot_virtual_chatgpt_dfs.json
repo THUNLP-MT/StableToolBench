@@ -1,0 +1,23 @@
+{
+    "588": {
+        "virtual_chatgpt_cot": 0,
+        "virtual_chatgpt_dfs": 3,
+        "round_0": "complete",
+        "round_1": "complete",
+        "round_2": "complete"
+    },
+    "608": {
+        "virtual_chatgpt_cot": 0,
+        "virtual_chatgpt_dfs": 3,
+        "round_0": "complete",
+        "round_1": "complete",
+        "round_2": "complete"
+    },
+    "1073": {
+        "virtual_chatgpt_cot": 1,
+        "virtual_chatgpt_dfs": 2,
+        "round_0": "complete",
+        "round_1": "complete",
+        "round_2": "complete"
+    }
+}

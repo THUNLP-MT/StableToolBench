@@ -44,7 +44,6 @@ class OpenaiPoolRequest:
                 'api_type':os.environ.get('OPENAI_TYPE',None),
                 'api_version':os.environ.get('OPENAI_VER',None)
             })
-            self.now_pos = random.randint(-1, len(self.pool))
 
     # @retry(wait=wait_random_exponential(multiplier=1, max=30), stop=stop_after_attempt(10),reraise=True)
     def request(self,messages,**kwargs):
@@ -52,6 +51,8 @@ class OpenaiPoolRequest:
         key_pos = self.now_pos
         item = self.pool[key_pos]
         # print(len(self.pool))
+        openai.api_key = item['api_key']
+        openai.api_base = item.get('api_base', None)
         kwargs['api_key'] = item['api_key']
         if item.get('organization',None) is not None:
             kwargs['organization'] = item['organization'] 

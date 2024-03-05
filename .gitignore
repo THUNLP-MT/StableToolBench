@@ -162,3 +162,4 @@ server_raw
 server/tool_response_cache
 server/tools
 data
+toolenv

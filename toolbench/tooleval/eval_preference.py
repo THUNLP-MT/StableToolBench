@@ -59,8 +59,6 @@ def get_pass_rate_results(filename: str) -> dict:
             for index, item in enumerate(line):
                 if item == "query":
                     query_index = index
-                elif item == "solvable":
-                    solvable_index = index
                 elif item == "available_tools":
                     atools_index = index
                 elif item == "model_intermediate_steps":
@@ -71,21 +69,14 @@ def get_pass_rate_results(filename: str) -> dict:
                     final_step_index = index
                 elif item == "is_solved":
                     is_solved_index = index
-                elif item == "pass_rate_label":
-                    machine_label_index = index
                 elif item == "query_id":
                     query_id_index = index
-                elif item == "reason":
-                    reason_index = index
-                elif item == "not_hallucinate":
-                    not_hallucinate_index = index
                 else:
                     print(f"Unrecognized item: {item}")
                         
         line_cnt = 1
         query = line[query_index]
         query_id = line[query_id_index]
-        solvable = line[solvable_index]
         atools = line[atools_index]
         mid_steps = line[mid_steps_index]
         modelname = line[modelname_index]
@@ -96,19 +87,14 @@ def get_pass_rate_results(filename: str) -> dict:
             is_solved = list(is_solved)
             most_frequent_item = max(set(is_solved), key=is_solved.count)
             is_solved = most_frequent_item
-        machine_label = line[machine_label_index]
         return_dict[query_id] = {
             "query": query,
-            "solvable": solvable,
             "atools": atools,
             "mid_steps": mid_steps,
             "modelname": modelname,
             "final_step": final_step,
             "is_solved": is_solved,
-            "machine_label": machine_label
         }
-    # print(return_dict.keys(), len(return_dict.keys()))
-    # import pdb; pdb.set_trace()
     return return_dict
 
 def write_results(filename:str, prefer_dict: dict, reference_model: str, output_model: str, reference_examples: dict, output_examples: dict) -> None:
@@ -204,18 +190,12 @@ if __name__=='__main__':
                     elif prefer_dict[qid][f"round_{i}"] == "complete":
                         continue
                     if qid in ref_pass_result_dict and qid in output_pass_result_dict:
-                        if ref_pass_result_dict[qid]["machine_label"] == "passed" and output_pass_result_dict[qid]["machine_label"] == "failed":
+                        if ref_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Solved" and output_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Unsolved":
                             prefer_dict[qid][reference_model] += 1
                             continue
-                        elif ref_pass_result_dict[qid]["machine_label"] == "failed" and output_pass_result_dict[qid]["machine_label"] == "passed":
+                        elif ref_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Unsolved" and output_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Solved":
                             prefer_dict[qid][output_model] += 1
-                            continue
-                        # if ref_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Solved" and output_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Unsolved":
-                        #     prefer_dict[qid][reference_model] += 1
-                        #     continue
-                        # elif ref_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Unsolved" and output_pass_result_dict[qid]["is_solved"] == "AnswerStatus.Solved":
-                        #     prefer_dict[qid][output_model] += 1
-                        #     continue                    
+                            continue                    
                     if qid not in reference_examples:
                         prefer_dict[qid][output_model] += 1
                         continue
@@ -228,7 +208,7 @@ if __name__=='__main__':
                     output_example = output_examples[qid]
                     if args.use_pass_rate == 'true':
                         try:
-                            task_status = task_status_mapping[ref_pass_result_dict[qid]["solvable"]]
+                            task_status = None
                             answer_statuss = [answer_status_mapping[ref_pass_result_dict[qid]["is_solved"]],answer_status_mapping[output_pass_result_dict[qid]["is_solved"]]]
                         except:
                             task_status = None

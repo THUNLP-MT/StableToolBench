@@ -11,7 +11,6 @@ def chat_completion_request(key, messages, functions=None,function_call=None,key
     for message in messages:
         if not("valid" in message.keys() and message["valid"] == False):
             use_messages.append(message)
-    print(f"[process({process_id})]Model: {model}")
     json_data = {
         "model": model,
         "messages": use_messages,
@@ -28,10 +27,6 @@ def chat_completion_request(key, messages, functions=None,function_call=None,key
         json_data.update({"function_call": function_call})
     
     try:
-        # if model == "gpt-3.5-turbo-16k-0613" or model.startswith('gpt-4'):
-        #     openai.api_key = key
-        # else:
-        #     raise NotImplementedError
         openai.api_key = key
         openai_response = openai.ChatCompletion.create(
             **json_data,
@@ -42,7 +37,6 @@ def chat_completion_request(key, messages, functions=None,function_call=None,key
     except Exception as e:
         print("Unable to generate ChatCompletion response")
         print(f"OpenAI calling Exception: {e}")
-        # import pdb; pdb.set_trace()
         return e
 
 class ChatGPTFunction:

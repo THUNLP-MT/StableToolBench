@@ -1,0 +1,662 @@
+[
+    {
+        "api_list": [
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Songkick concert",
+                "api_description": "Concert info",
+                "required_parameters": [
+                    {
+                        "name": "id_conc",
+                        "type": "string",
+                        "description": "",
+                        "default": "40698227-lumineers-at-aware-super-theatre"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "date": "str",
+                    "image": "str",
+                    "line_up": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "_list_length": 2
+                        }
+                    ],
+                    "location": "str",
+                    "name": "str",
+                    "venue_name": "str",
+                    "venue_url": "str",
+                    "website": "str"
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Songkick artist",
+                "api_description": "Artist info",
+                "required_parameters": [
+                    {
+                        "name": "artist_id",
+                        "type": "string",
+                        "description": "",
+                        "default": "520117-arctic-monkeys"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "appears_most_with": [
+                        {
+                            "count": "int",
+                            "link": "str",
+                            "name": "str",
+                            "_list_length": 5
+                        }
+                    ],
+                    "bio": "str",
+                    "distance_travelled": "str",
+                    "fans_num": "int",
+                    "image_url": "str",
+                    "most_played": [
+                        {
+                            "count": "int",
+                            "name": "str",
+                            "_list_length": 5
+                        }
+                    ],
+                    "name": "str",
+                    "on_tour": "str",
+                    "posters": [
+                        "list of str with length 8"
+                    ],
+                    "upcoming_events": [
+                        {
+                            "date_finish": "str",
+                            "date_start": "str",
+                            "line_up": [
+                                {
+                                    "id": "str",
+                                    "name": "str",
+                                    "_list_length": 3
+                                }
+                            ],
+                            "location": {
+                                "city": "str",
+                                "country": "str",
+                                "region": "str"
+                            },
+                            "street": "str",
+                            "venue": "str",
+                            "_list_length": 10
+                        }
+                    ]
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Songkick festivals",
+                "api_description": "festivals info",
+                "required_parameters": [
+                    {
+                        "name": "id_fest",
+                        "type": "string",
+                        "description": "",
+                        "default": "1627549-dreamstate-socal/id/40521898-dreamstate-socal-2022"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "message": "str"
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Transfermarkt search",
+                "api_description": "Search by name",
+                "required_parameters": [
+                    {
+                        "name": "name",
+                        "type": "string",
+                        "description": "",
+                        "default": "messi"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "Clubs": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "slug": "str",
+                            "_list_length": 10
+                        }
+                    ],
+                    "Managers & officials": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "slug": "str",
+                            "_list_length": 5
+                        }
+                    ],
+                    "Players": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "slug": "str",
+                            "_list_length": 10
+                        }
+                    ],
+                    "Referees": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "slug": "str",
+                            "_list_length": 10
+                        }
+                    ]
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "List Artist Concerts",
+                "api_description": "Enter Artist ID",
+                "required_parameters": [
+                    {
+                        "name": "id_artist",
+                        "type": "string",
+                        "description": "",
+                        "default": "6eUKZXaKkcviH0Ku9w2n3V"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "results": [
+                        {
+                            "artists": [
+                                {
+                                    "id": "str",
+                                    "imageUri": "str",
+                                    "name": "str",
+                                    "topTrackUri": "str",
+                                    "uri": "str",
+                                    "_list_length": 3
+                                }
+                            ],
+                            "date": "str",
+                            "festival": "bool",
+                            "id": "str",
+                            "lat": "float",
+                            "location": "str",
+                            "lon": "float",
+                            "ticketers": [
+                                {
+                                    "imageURL": "str",
+                                    "partnerDisplayName": "str",
+                                    "type": "str",
+                                    "url": "str",
+                                    "_list_length": 1
+                                }
+                            ],
+                            "ticketing": [
+                                {
+                                    "maxPrice": "str",
+                                    "minPrice": "str",
+                                    "_list_length": 1
+                                }
+                            ],
+                            "title": "str",
+                            "type": "str",
+                            "venue": "str",
+                            "_list_length": 27
+                        }
+                    ]
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Get Artist Overview",
+                "api_description": "Enter Artist ID",
+                "required_parameters": [
+                    {
+                        "name": "id_artist",
+                        "type": "string",
+                        "description": "",
+                        "default": "6eUKZXaKkcviH0Ku9w2n3V"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": "{\"biography\": \"str\", \"discography\": {\"albums\": {\"items\": [{\"releases\": {\"items\": [{\"copyright\": {\"items\": [{\"text\": \"str\", \"type\": \"str\", \"_list_length\": 2}]}, \"coverArt\": {\"sources\": [{\"height\": \"int\", \"url\": \"str\", \"width\": \"int\", \"_list_length\": 3}]}, \"date\": {\"day\": \"int\", \"month\": \"int\", \"precision\": \"str\", \"year\": \"int\"}, \"id\": \"str\", \"label\": \"str\", \"name\": \"str\", \"playability\": {\"playable\": \"bool\", \"reason\": \"str\"}, \"sharingInfo\": {\"shareId\": \"str\", \"shareUrl\": \"str\"}, \"tracks\": {\"totalCount\": \"int\"}, \"type\": \"str\", \"uri\": \"str\", \"_list_length\": 1}]}, \"_list_length\": 10}], \"totalCount\": \"int\"}, \"compilations\": {\"items\": \"empty list\", \"totalCount\": \"int\"}, \"latest\": {\"copyright\": {\"items\": [{\"text\": \"str\", \"type\": \"str\", \"_list_length\": 2}]}, \"coverArt\": {\"sources\": [{\"height\": \"int\", \"url\": \"str\", \"width\": \"int\", \"_list_length\": 3}]}, \"date\": {\"day\": \"int\", \"month\": \"int\", \"precision\": \"str\", \"year\": \"int\"}, \"id\": \"str\", \"label\": \"str\", \"name\": \"str\", \"playability\": {\"playable\""
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Transfermarkt details",
+                "api_description": "Enter **SLUG ** from Transfermarkt search API.\n\nIt os working for all types (players, clubs, managers, referees, etc)",
+                "required_parameters": [
+                    {
+                        "name": "type_s",
+                        "type": "string",
+                        "description": "",
+                        "default": "verein"
+                    },
+                    {
+                        "name": "other",
+                        "type": "string",
+                        "description": "",
+                        "default": "startseite"
+                    },
+                    {
+                        "name": "id_talent",
+                        "type": "string",
+                        "description": "",
+                        "default": "583"
+                    },
+                    {
+                        "name": "part_slug",
+                        "type": "string",
+                        "description": "",
+                        "default": "fc-paris-saint-germain"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "": "str",
+                    "average_age": "str",
+                    "current_transfer_record": "str",
+                    "foreigners": "str",
+                    "in_league_since": "str",
+                    "name": "str",
+                    "national_team_players": "str",
+                    "organization_name": "str",
+                    "players": [
+                        {
+                            "name": "str",
+                            "position": "str",
+                            "slug": "str",
+                            "_list_length": 27
+                        }
+                    ],
+                    "squad_size": "str",
+                    "stadium": "str",
+                    "table_position": "str"
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "SongKick search Artist",
+                "api_description": "Enter the name of the artist.\nFor example, ed sheran",
+                "required_parameters": [
+                    {
+                        "name": "artist_name",
+                        "type": "string",
+                        "description": "",
+                        "default": "arctic monkeys"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "results": [
+                        {
+                            "id": "str",
+                            "name": "str",
+                            "url": "str",
+                            "_list_length": 10
+                        }
+                    ]
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "TuneFind for Details",
+                "api_description": "Please, enter the slug of artist. For example, taylor-swift or acdc.\nYou can get a slug  by using the TuneFind Search API",
+                "required_parameters": [
+                    {
+                        "name": "artist_slug",
+                        "type": "string",
+                        "description": "",
+                        "default": "rihanna"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "info": "str"
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "TheClique",
+                "api_name": "Get info about artist",
+                "api_description": "Give info about artist on allmusic.com\n\nResponse -> json",
+                "required_parameters": [
+                    {
+                        "name": "parameter",
+                        "type": "string",
+                        "description": "",
+                        "default": "bessie-smith-mn0000054707"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "active": "str",
+                    "also_known_as": "str",
+                    "biography": "str",
+                    "born_in": "str",
+                    "born_location": "str",
+                    "died_in": "str",
+                    "died_location": "str",
+                    "genre": "str",
+                    "id": "str",
+                    "image": "str",
+                    "name": "str",
+                    "similar_artist": [
+                        {
+                            "id": "str",
+                            "link": "str",
+                            "name": "str",
+                            "_list_length": 19
+                        }
+                    ],
+                    "styles": [
+                        {
+                            "link": "str",
+                            "name": "str",
+                            "_list_length": 3
+                        }
+                    ],
+                    "tagline": "str"
+                }
+            }
+        ],
+        "query": "I'm a football enthusiast and I want to know more about Lionel Messi's career. Can you provide me with information about Messi's clubs, managers, teammates, and referees? I'm also curious about any notable transfers he has made.",
+        "relevant APIs": [
+            [
+                "TheClique",
+                "Transfermarkt search"
+            ],
+            [
+                "TheClique",
+                "Transfermarkt details"
+            ]
+        ],
+        "query_id": 588
+    },
+    {
+        "api_list": [
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Clips",
+                "api_description": "Get Channel Clips",
+                "required_parameters": [
+                    {
+                        "name": "cursor",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "0"
+                    },
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Chat User (like user from chat)",
+                "api_description": "Get Chat User (like user from chat)",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    },
+                    {
+                        "name": "username",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "KMLT96"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Chatroom Rules",
+                "api_description": "Get Chatroom Rules",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Links",
+                "api_description": "Get Channel Links",
+                "required_parameters": [],
+                "optional_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Polls",
+                "api_description": "Get Channel Polls",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Chatroom",
+                "api_description": "Get Channel Chatroom",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Emotes",
+                "api_description": "Get Channel Emotes",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Livestream Info",
+                "api_description": "Get Channel Livestream Info",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Channel Details",
+                "api_description": "Get Channel Details",
+                "required_parameters": [
+                    {
+                        "name": "channel_name",
+                        "type": "STRING",
+                        "description": "",
+                        "default": "gmhikaru"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Kick.com API | Kick API",
+                "api_name": "Get Chat Messages",
+                "api_description": "Returns chat messages from livestream ID.",
+                "required_parameters": [
+                    {
+                        "name": "livestream_id",
+                        "type": "STRING",
+                        "description": "",
+                        "default": ""
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            }
+        ],
+        "query": "I'm a fan of the streamer 'gmhikaru' on Kick.com and I want to explore their channel. Can you provide me with the channel clips and the channel details? I'm eager to learn more about their content.",
+        "relevant APIs": [
+            [
+                "Kick.com API | Kick API",
+                "Get Channel Clips"
+            ],
+            [
+                "Kick.com API | Kick API",
+                "Get Channel Details"
+            ]
+        ],
+        "query_id": 608
+    },
+    {
+        "api_list": [
+            {
+                "category_name": "Data",
+                "tool_name": "Keyword Analysis",
+                "api_name": "PopularSitesForQuery",
+                "api_description": "Get the **popular sites** for a given search query.",
+                "required_parameters": [
+                    {
+                        "name": "q",
+                        "type": "STRING",
+                        "description": "The user's search query string.",
+                        "default": "taylor swift"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "name": "str",
+                    "score": "float"
+                }
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Keyword Analysis",
+                "api_name": "QueryKeywords",
+                "api_description": "Get the **main keywords** for a given search query.",
+                "required_parameters": [
+                    {
+                        "name": "q",
+                        "type": "STRING",
+                        "description": "The user's search query string.",
+                        "default": "cyberia game review"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET"
+            },
+            {
+                "category_name": "Data",
+                "tool_name": "Keyword Analysis",
+                "api_name": "SimilarQueries",
+                "api_description": "Get **similar queries** for a given search query.",
+                "required_parameters": [
+                    {
+                        "name": "q",
+                        "type": "STRING",
+                        "description": "The user's search query string.",
+                        "default": "john wick 3"
+                    }
+                ],
+                "optional_parameters": [],
+                "method": "GET",
+                "template_response": {
+                    "name": "str",
+                    "score": "float"
+                }
+            }
+        ],
+        "query": "I want to plan a surprise birthday party for my friend. Can you suggest popular sites and main keywords for the search query 'birthday party ideas'? I want to gather inspiration and plan a memorable event.",
+        "relevant APIs": [
+            [
+                "Keyword Analysis",
+                "PopularSitesForQuery"
+            ],
+            [
+                "Keyword Analysis",
+                "QueryKeywords"
+            ]
+        ],
+        "query_id": 1073
+    }
+]
