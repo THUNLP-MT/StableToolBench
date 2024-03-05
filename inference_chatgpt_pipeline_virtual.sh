@@ -1,7 +1,7 @@
-export TOOLBENCH_KEY="xud2dQdMNE8MRlkwBTe5DYB0DkktPi1uiCnyteptzmg3gS7Bbz"
+export TOOLBENCH_KEY=""
 
-export OPENAI_KEY="openchat"
-export OPENAI_API_BASE="https://api.01ww.xyz/v1" 
+export OPENAI_KEY=""
+export OPENAI_API_BASE="" 
 export PYTHONPATH=./
 unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy
 

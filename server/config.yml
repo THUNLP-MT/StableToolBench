@@ -2,7 +2,8 @@ api_key: openchat
 api_base: https://api.01ww.xyz/v1
 model: gpt-4-turbo-preview
 temperature: 0
-rapidapi_url: http://8.218.239.54:8080/rapidapi
+toolbench_url: http://8.218.239.54:8080/rapidapi
 tools_folder: "./tools"
-is_save: true
 cache_folder: "./tool_response_cache"
+is_save: true
+port: 8080

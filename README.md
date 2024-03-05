@@ -18,15 +18,7 @@
 
 </div>
 
-<!-- <div align="center">
-<img src="https://cdn.discordapp.com/attachments/941582479117127680/1111543600879259749/20230526075532.png" width="350px">
-</div> -->
-
 🔨Welcome to StableToolBench. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
-<!-- 
-**💁‍♂️💁💁‍♀️ Join Us on [Discord](https://discord.gg/NScFnpMuRQ)!** -->
-
-<!-- *Read this in [中文](README_ZH.md).* -->
 
 ## Features
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
@@ -37,62 +29,86 @@
 ### Next Steps
 
 ## The Virtual API Server
+Our virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code.
 
-👐ToolBench is intended solely for research and educational purposes and should not be construed as reflecting the opinions or views of the creators, owners, or contributors of this dataset. It is distributed under Apache License 2.0. Below is the statistics of the data :
+### The Public Server
 
-| Tool Nums | API Nums | Instance Nums | Real API Call | Reasoning Traces |
-|-----------|----------|---------------|---------------|------------------|
-| 3451      | 16464    | 126486         | 469585         | 4.0              |
-
-We crawl 16000+ real-world APIs from [RapidAPI](https://rapidapi.com/hub), and curate realistic human instructions that involve them. Below we present a hierarchy of RapidAPI and our instruction generation process.
+### The Docker Container
 
 
-ToolBench contains both single-tool and multi-tool scenarios. The multi-tool scenarios can be further categorized into intra-category multi-tool and intra-collection multi-tool. We utilize DFSDT method for all scenarios to our data creation. Here is an illustration for the data creation process using DFSDT method:
+### Building from Source
+To start the server, you need to provide a cache directory and an OpenAI key.
 
-
-### API Simulation
-
-### Cache
- Please download our dataset using the following link: [Google Drive](https://drive.google.com/drive/folders/1yBUQ732mPu-KclJnuQELEhtKakdXFc3J) or [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/c9e50625743b40bfbe10/). *Notice that `data_0801` is the old version data.*
-The file structure is as follows:
+#### Downloading the cache
+We provide a cache to download from [Google Drive](). After downloading the cache, unzip the folder into the `server` folder and ensure the `server` folder contains `tool_response_cache` folder and `tools` folder. The resulting folder of `server` looks like:
 ```
-├── /data/
-│  ├── /instruction/
-│  ├── /answer/
-│  ├── /toolenv/
-│  ├── /retrieval/
-│  ├── /test_instruction/
-│  ├── /test_query_ids/
-│  ├── /retrieval_test_query_ids/
-│  ├── toolllama_G123_dfs_train.json
-│  └── toolllama_G123_dfs_eval.json
-├── /reproduction_data/
-│  ├── /chatgpt_cot/
-│  ├── /chatgpt_dfs/
-│  ├── ...
-│  └── /toolllama_dfs/
+├── /server/
+│  ├── /tools/
+│  │  └── ...
+│  ├── /tool_response_cache/
+│  │  └── ...
+│  ├── config.yml
+│  ├── main.py
+│  ├── utils.py
 ```
-Here are some descriptions for the `data` directory:
-- `instruction` and `answer`: The instruction data and solution path annotation data. `G1`,`G2`, `G3` refers to single-tool, intra-category multi-tool and intra-collection multi-tool data respectively. We also have an [Atlas Explorer](https://atlas.nomic.ai/map/58aca169-c29a-447a-8f01-0d418fc4d341/030ddad7-5305-461c-ba86-27e1ca79d899) for visualization.
-- `toolenv`: The tool environment related data, containing API jsons, API codes and API example responses.
-- `retrieval`: The data used for tool retrieval is included in this directory.
-- `test_instruction` and `test_query_ids`: We sample 200 instances from every test set. The `test_instruction` directory contains test queries for each test set, and the `test_query_ids` contains query ids of the test instances in each test set.
-- `retrieval_test_query_ids`: This directory contains query ids of the test instances for retriever.
-- `toolllama_G123_dfs_train.json` and `toolllama_G123_dfs_eval.json`: Preprocessed data that can be used to train toolllama directly and reproduce our results. For preprocessing details, we split the G1, G2 and G3 data into train, eval and test parts respectively and combine the train data for training in our main experiments.
 
-*Please make sure you have downloaded the necessary data and put the directory (e.g. `data/`) under `ToolBench/`, so that the following bash scripts can navigate to the related data.*
-<!-- 
-## 🤖Model
+#### Running the server
+You need to first specify your configurations in `server/config.yml` before running the server. Parameters needed are:
+ - `api_key`: The API key for OpenAI models.
+ - `api_base`: The API base for OpenAI models if you are using Azure.
+ - `model`: The OpenAI model to use. The default value is gpt-4-turbo-preview.
+ - `temperature`: The temperature for LLM simulation. The default value is 0.
+ - `toolbench_url`: The real ToolBench server URL. The default value is `http://8.218.239.54:8080/rapidapi`.
+ - `tools_folder`: The tools enviroment folder path. Default to `./tools`.
+ - `cache_folder`: The cache folder path. Default to `./tool_response_cache`.
+ - `is_save`: A flag to indicate whether to save real and simulated response into the cache. The new cache is saved at `./tool_response_new_cache`.
+ - `port`: The server port to run on, default to 8080.
 
-We release the [ToolLLaMA-2-7b-v2](https://huggingface.co/ToolBench/ToolLLaMA-2-7b-v2) which is trained on the latest version data, and [ToolLLaMA-7b-v1](https://huggingface.co/ToolBench/ToolLLaMA-7b-v1), [ToolLLaMA-7b-LoRA-v1](https://huggingface.co/ToolBench/ToolLLaMA-7b-LoRA-v1) which are trained on the 0801 version data. All models are trained on the released dataset in a multi-task fashion. We also release the [tool retriever](https://huggingface.co/ToolBench/ToolBench_IR_bert_based_uncased) trained under our experimental setting. -->
+Now you can run the server by running:
+```
+cd server
+python main.py
+```
+The server will be run at `http://0.0.0.0:{port}/virtual`. 
+To use the server, you will further need a toolbench key. You can apply one from this [form](https://forms.gle/oCHHc8DQzhGfiT9r6).
+
+You can test the server with
+```
+import requests
+import json
+import os
+
+url = 'http://0.0.0.0:8080/virtual'
+data = {
+    "category": "Media",
+    "tool_name": "newapi_for_media",
+    "api_name": "url",
+    "tool_input": {'url': 'https://api.socialmedia.com/friend/photos'},
+    "strip": "",
+    "toolbench_key": ""
+}
+headers = {
+    'accept': 'application/json',
+    'Content-Type': 'application/json',
+}
+
+# Make the POST request
+response = requests.post(url, headers=headers, data=json.dumps(data))
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Process the response if necessary
+    print(response.json())
+else:
+    print(f"Error: {response.status_code}")
+    print(response.text)
+```
+
+
 
 ## Inference With Our StableToolBench Server
-Please fill out the [form](https://forms.gle/oCHHc8DQzhGfiT9r6) first and after reviewing we will send you the toolbench key. Then prepare your toolbench key by:
-```bash
-export TOOLBENCH_KEY="your_toolbench_key"
-```
+We currently implemented all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`
 
-### For OpenAI Models
 To use ChatGPT, run:
 ```bash
 export TOOLBENCH_KEY=""
@@ -108,24 +124,6 @@ python toolbench/inference/qa_pipeline.py \
     --output_answer_file chatgpt_dfs_inference_result \
     --toolbench_key $TOOLBENCH_KEY
 ```
-
-To use Text-Davinci-003, run:
-```bash
-export TOOLBENCH_KEY=""
-export OPENAI_KEY=""
-export PYTHONPATH=./
-python toolbench/inference/qa_pipeline.py \
-    --tool_root_dir data/toolenv/tools/ \
-    --backbone_model davinci \
-    --openai_key $OPENAI_KEY \
-    --max_observation_length 1024 \
-    --method DFS_woFilter_w2 \
-    --input_query_file data/test_instruction/G1_instruction.json \
-    --output_answer_file davinci_dfs_inference_result \
-    --toolbench_key $TOOLBENCH_KEY
-```
-## Setting up and running the interface
-ToolBench contains a Web UI based on [Chatbot UI](https://github.com/mckaywrigley/chatbot-ui), forked to include the use of tools in the interface. It comes in two parts: the backend server, and [chatbot-ui-toolllama](https://github.com/lilbillybiscuit/chatbot-ui-toolllama). Here is a [video demo](assets/toolbench-demo.mp4).
 
 
 ## StableToolEval

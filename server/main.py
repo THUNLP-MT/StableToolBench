@@ -123,7 +123,7 @@ def get_virtual_response(request: Request, info: Info):
         "toolbench_key": user_key
     }
     
-    real_response = requests.post(CONFIG['rapidapi_url'], headers=headers, data=json.dumps(data))
+    real_response = requests.post(CONFIG['toolbench_url'], headers=headers, data=json.dumps(data))
 
     # Check if the request was successful
     if real_response.status_code == 200:
@@ -229,7 +229,7 @@ def check_result(processes_value: dict):
         return False
     return True
 
-def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder=CACHE_FOLDER):
+def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder='./tool_response_new_cache'):
     # save cache
     try:
         if isinstance(result, dict):
@@ -308,4 +308,4 @@ Note that:
         return json.dumps(fake_error)
 
 if __name__ == "__main__":
-    uvicorn.run(app="main:app", host="0.0.0.0", port=8080)
+    uvicorn.run(app="main:app", host="0.0.0.0", port=CONFIG['port'])
