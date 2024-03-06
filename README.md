@@ -272,7 +272,7 @@ In this experiment, we run all models once, evaluate three times and take the av
 
 Table: Solvable Win Rate scores. We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
-## Citation [anchor](#citation-anchor)
+## Citation
 Feel free to cite us if you like StableToolBench.
 
 ```
