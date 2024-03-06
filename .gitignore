@@ -163,3 +163,4 @@ server/tool_response_cache
 server/tools
 data
 toolenv
+server/server_cache.tar.gz
