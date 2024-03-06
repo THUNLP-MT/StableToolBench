@@ -10,7 +10,7 @@
   <a href="">Project</a> •
   <a href="#server">Server</a> •
   <a href="#solvable_queries">Solvable Queries</a> •
-  <a href="#stable-eval">Stable ToolEval</a> •
+  <a href="#stable-eval">StableToolEval</a> •
   <a href="">Paper</a> •
   <a href="#citation">Citation</a>
 
@@ -18,15 +18,16 @@
 
 </div>
 
-🔨Welcome to StableToolBench. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
+🔨Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
 
 ## Features
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
 - **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing sigificant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. 
 - **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
 
+
 ## The Virtual API Server
-Our virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code.
+Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code.
 
 ### The Public Server
 
@@ -34,6 +35,8 @@ Our virtual API server featured two components, the API simulation system with G
 
 
 ### Building from Source
+Before you run any code, please first setup the environment by running `pip install -r requirements.txt`.
+
 To start the server, you need to provide a cache directory and an OpenAI key.
 
 #### Downloading the cache
@@ -100,6 +103,7 @@ The original queries are curated without considering the solvability but judging
 
 
 ## Inference With Our StableToolBench Server
+If you have not set up the environment, please first do so by running `pip install -r requirements.txt`.
 We currently implemented all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`. An example of results is shown in `data_example/answer`.
 
 To use ChatGPT, run:
@@ -236,37 +240,39 @@ In our main experiments, ToolLLaMA(v2) demonstrates a compelling capability to h
 Below are the main results. Win rate for each model is compared with ChatGPT-ReACT.
 
 
-**Pass Rate:**
-| Method | Model               | I1-Inst. | I1-Tool | I1-Cate. | I2-Inst. | I2-Cate. | I3-Inst. | Average |
-|--------|---------------------|----------|---------|----------|----------|----------|----------|---------|
-| ReACT  | Claude-2            | 5.5      | 3.5     | 5.5      | 6        | 6        | 14       | 6.8     |
-|        | Text-Davinci-003    | 12       | 20      | 20       | 8.5      | 14.5     | 24       | 16.5    |
-|        | ChatGPT             | 41.5     | 44      | 44.5     | 42.5     | 46.5     | 22       | 40.2    |
-|        | ToolLLaMA           | 25       | 29      | 33       | 30.5     | 31.5     | 25       | 29      |
-|        | GPT4                | 53.5       | 50.0    | 53.5       | 67.0     | 72.0     | 47.0       | 57.2    |
-| DFSDT  | Claude-2            | 20.5     | 31      | 18.5     | 17       | 20.5     | 28       | 22.6    |
-|        | Text-Davinci-003    | 43.5     | 44      | 46       | 37       | 42       | 46       | 43.1    |
-|        | ChatGPT             | 54.5     | 65      | 60.5     | 75       | 71.5     | 62       | 64.8    |
-|        | ToolLLaMA           | 57       | 61      | 62       | 77       | 77       | 66       | 66.7    |
-|        | ToolLLaMA-Retreiver | **64**       | 64      | 60.5     | **81.5**     | 68.5     | 65       | 67.3    |
-|        | GPT4                | 60       | **71.5**    | **67**       | 79.5     | **77.5**     | **71**       | **71.1**    |
+**Solvable Pass Rate:**
+| **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Category** | **I2 Instruction** | **I3 Instruction** | **Average** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GPT-3.5-Turbo-0613  (CoT) | 55.9±1.0 | 50.8±0.8 | 55.9±1.0 | 44.1±0.8 | 36.2±0.4 | 51.4±1.5 | 49.1±1.0 |
+| GPT-3.5-Turbo-0613 (DFS) | 66.4±1.5 | 64.3±1.0 | 67.2±2.4 | 67.7±0.8 | 61.5±1.0 | 81.4±1.5 | 68.1±1.4 |
+| GPT-4-0613 (CoT) | 50.7±0.4 | 57.1±0.3 | 51.9±0.3 | 55.0±1.1 | 61.6±0.8 | 56.3±0.8 | 55.4±0.6 |
+| GPT-4-0613 (DFS) | 65.5±1.1 | 62.0±1.7 | 72.1±1.6 | **70.8±1.3** | **73.1±1.4** | 74.9±1.5 | 69.7±1.4 |
+| ToolLLaMA v2 (CoT) | 37.2±0.1 | 42.3±0.4 | 43.0±0.5 | 37.4±0.4 | 33.6±1.2 | 39.6±1.0 | 38.9±0.6 |
+| ToolLLaMA v2 (DFS) | 59.8±1.5 | 59.5±1.4 | 65.7±1.1 | 56.5±0.3 | 47.6±0.4 | 62.8±1.9 | 58.7±1.1 |
+| GPT-3.5-Turbo-1106 (CoT) | 51.3±0.6 | 48.8±0.3 | 59.9±0.8 | 50.8±0.7 | 43.2±0.8 | 58.5±0.8 | 52.1±0.7 |
+| GPT-3.5-Turbo-1106 (DFS) | 67.8±0.9 | 67.2±0.3 | **72.9±0.7** | 63.2±1.0 | 70.9±0.4 | 77.6±0.8 | 69.9±0.7 |
+| GPT-4-Turbo-Preview (CoT) | 63.1±1.0 | 64.5±0.5 | 55.3±0.3 | 63.0±0.8 | 57.3±0.8 | 61.7±0.8 | 60.8±0.7 |
+| GPT-4-Turbo-Preview (DFS) | **70.8±1.0** | **71.1±0.7** | 70.4±1.2 | 70.4±1.3 | 71.7±0.4 | **84.7±1.7** | **73.2±1.1** |
+
+In this experiment, we run all models once, evaluate three times and take the average results. C and D stand for CoT and DFS respectively. The experiments below follow the denotation.
 
 
-**Win Rate:** (Reference model: ChatGPT-ReACT)
-| Method | Model               | I1-Inst. | I1-Tool | I1-Cate. | I2-Inst. | I2-Cate. | I3-Inst. | Average |
-|--------|---------------------|----------|---------|----------|----------|----------|----------|---------|
-| ReACT  | Claude-2            | 31       | 27.8    | 33.8     | 35       | 31.5     | 47.5     | 34.4    |
-|        | Text-Davinci-003    | 28.5     | 35.3    | 31       | 29.8     | 29.8     | 45       | 33.2    |
-|        | ToolLLaMA           | 45       | 42      | 47.5     | 50.8     | 41.8     | 55       | 47      |
-|        | GPT4                | 60       | 58.8    | 63.5     | 65.8     | 60.3     | 78       | 64.4    |
-| DFSDT  | Claude-2            | 38       | 44.3    | 43.3     | 36.8     | 33.5     | 65       | 43.5    |
-|        | Text-Davinci-003    | 40.3     | 43.8    | 46.8     | 40.5     | 43.3     | 63       | 46.3    |
-|        | ChatGPT             | 60.5     | 62      | 57.3     | 72       | **64.8**     | 69       | 64.3    |
-|        | ToolLLaMA           | 55       | 55.3    | 54.5     | 68.5     | 58       | 69       | 60      |
-|        | ToolLLaMA-Retreiver | 62.3     | 59      | 55       | 68.5     | 60.8     | 73       | 63.1    |
-|        | GPT4                | **67.5**     | **67.8**    | **66.5**     | **73.3**     | 63.3     | **84**       | **70.4**    |
+**Solvable Win Rate:** (Reference model: ChatGPT-CoT)
+| **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Category** | **I2 Instruction** | **I3 Instruction** | **Average** |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GPT-3.5-Turbo-0613 (DFS) | 57.7 | 60.8 | 61.4 | 66.1 | 63.2 | 70.5 | 63.3 |
+| GPT-4-0613 (CoT) | 50.3 | 54.2 | 50.6 | 50.0 | 64.2 | 55.7 | 54.2 |
+| GPT-4-0613 (DFS) | 57.1 | 60.1 | 57.0 | 64.5 | 74.5 | 72.1 | 64.2 |
+| ToolLLaMA v2 (CoT) | 35.0 | 30.7 | 37.3 | 31.5 | 36.8 | 23.0 | 32.4 |
+| ToolLLaMA v2 (DFS) | 43.6 | 45.1 | 38.6 | 42.7 | 53.8 | 45.9 | 44.9 |
+| GPT-3.5-Turbo-1106 (CoT) | 46.6 | 45.1 | 48.1 | 44.4 | 37.7 | 52.5 | 45.7 |
+| GPT-3.5-Turbo-1106 (DFS) | 56.4 | 54.2 | 51.9 | 54.0 | 62.3 | 72.1 | 58.5 |
+| GPT-4-Turbo-Preview (CoT) | 68.7 | 71.9 | 58.2 | 71.0 | 76.4 | 73.8 | 70.0 |
+| GPT-4-Turbo-Preview (DFS) | **66.9** | **73.9** | **68.4** | **72.6** | **78.3** | **77.0** | **72.9** |
 
-## Citation
+Table: Solvable Win Rate scores. We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
+
+## Citation [anchor](#citation-anchor)
 Feel free to cite us if you like StableToolBench.
 
 ```

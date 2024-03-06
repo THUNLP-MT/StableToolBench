@@ -111,8 +111,8 @@ class ChatGPTFunction:
         return {"role": "assistant", "content": str(json_data)}, -1, 0
 
 if __name__ == "__main__":
-    openai.api_base = "https://api.01ww.xyz/v1" 
-    llm = ChatGPTFunction(openai_key='openchat')
+    openai.api_base = "" 
+    llm = ChatGPTFunction(openai_key='')
     prompt = '''下面这句英文可能有语病，能不能把语病都改掉？
 If you think you get the result which can answer the task, call this function to give the final answer. Or, if you think you can't handle the task from this status, call this function to restart. Remember: you should ALWAYS call this function at the end of your try, and the final answer is the ONLY part that will be showed to user, so final answer should contain enough information.
 没语病的形式：
