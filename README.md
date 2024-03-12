@@ -7,12 +7,12 @@
 </div>
 
 <p align="center">
-  <a href="">Project</a> •
+  <!-- <a href="">Project</a> • -->
   <a href="#server">Server</a> •
   <a href="#solvable_queries">Solvable Queries</a> •
   <a href="#stable-eval">StableToolEval</a> •
   <a href="">Paper</a> •
-  <a href="#citation">Citation</a>
+  <!-- <a href="#citation">Citation</a> -->
 
 </p>
 
@@ -26,12 +26,12 @@
 - **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
 
 
-## The Virtual API Server
-Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code.
+## The Virtual API Server {#server}
+<!-- Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code. -->
+Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. You can pull the source of the codes and download relevant data to run it.
+<!-- ### The Public Server
 
-### The Public Server
-
-### The Docker Container
+### The Docker Container -->
 
 
 ### Building from Source
@@ -98,7 +98,7 @@ print(response.text)
 ```
 
 
-## Solvable Queries
+## Solvable Queries {#solvable_queries}
 The original queries are curated without considering the solvability but judging the solvability with ChatGPT on the fly will cause sigificant instability. Therefore, we judge the solvability of the original queries with majority vote of `gpt-4-turbo`, `gemini-pro` and `claude-2`. The filtered queries are saved in `solvable_queries`.
 
 
@@ -131,7 +131,7 @@ python toolbench/inference/qa_pipeline_multithread.py \
 ```
 
 
-## StableToolEval
+## StableToolEval {#stable-eval}
 We basically follow the evaluation process of ToolBench. The difference is that we update the evaluation logic of Pass Rate and Win Rate, resulting in Solvable Pass Rate and Solvable Win Rate.
 
 
@@ -272,7 +272,7 @@ In this experiment, we run all models once, evaluate three times and take the av
 
 Table: Solvable Win Rate scores. We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
-## Citation
+<!-- ## Citation
 Feel free to cite us if you like StableToolBench.
 
-```
+``` -->
