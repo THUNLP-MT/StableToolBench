@@ -11,7 +11,7 @@
   <a href="#the-virtual-api-server">Server</a> •
   <a href="#solvable-queries">Solvable Queries</a> •
   <a href="#inference-with-our-stabletoolbench-server">Inference</a> •
-  <a href="#stabletooleval">StableToolEval</a> •
+  <a href="#stabletooleval">StableToolEval</a>
   <!-- <a href="">Paper</a> • -->
   <!-- <a href="#citation">Citation</a> -->
 
