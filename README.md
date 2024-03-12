@@ -19,7 +19,7 @@
 
 </div>
 
-🔨Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
+Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
 
 ## Features
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
@@ -234,7 +234,7 @@ python eval_preference.py \
 ```
 The result files will be stored under the ${SAVE_PATH}.
 
-### 📊 Model Experiments Results
+### Model Experiments Results
 
 
 In our main experiments, ToolLLaMA(v2) demonstrates a compelling capability to handle both single-tool and complex multi-tool instructions, which on a par with ChatGPT.
