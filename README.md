@@ -271,7 +271,7 @@ In this experiment, we run all models once, evaluate three times and take the av
 | GPT-4-Turbo-Preview (CoT) | 68.7 | 71.9 | 58.2 | 71.0 | 76.4 | 73.8 | 70.0 |
 | GPT-4-Turbo-Preview (DFS) | **66.9** | **73.9** | **68.4** | **72.6** | **78.3** | **77.0** | **72.9** |
 
-Table: Solvable Win Rate scores. We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
+We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
  ## Citation
 Feel free to cite us if you like StableToolBench.
