@@ -11,9 +11,9 @@
   <a href="#the-virtual-api-server">Server</a> •
   <a href="#solvable-queries">Solvable Queries</a> •
   <a href="#inference-with-our-stabletoolbench-server">Inference</a> •
-  <a href="#stabletooleval">StableToolEval</a>
+  <a href="#stabletooleval">StableToolEval</a> •
   <!-- <a href="">Paper</a> • -->
-  <!-- <a href="#citation">Citation</a> -->
+  <a href="#citation">Citation</a>
 
 </p>
 
@@ -273,7 +273,15 @@ In this experiment, we run all models once, evaluate three times and take the av
 
 Table: Solvable Win Rate scores. We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
-<!-- ## Citation
+ ## Citation
 Feel free to cite us if you like StableToolBench.
-
-``` -->
+```
+@misc{guo2024stabletoolbench,
+      title={StableToolBench: Towards Stable Large-Scale Benchmarking on Tool Learning of Large Language Models}, 
+      author={Zhicheng Guo and Sijie Cheng and Hao Wang and Shihao Liang and Yujia Qin and Peng Li and Zhiyuan Liu and Maosong Sun and Yang Liu},
+      year={2024},
+      eprint={2403.07714},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
+``` 
