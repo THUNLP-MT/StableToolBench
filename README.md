@@ -7,19 +7,19 @@
 </div>
 
 <p align="center">
-  <!-- <a href="">Project</a> • -->
+  <a href="https://zhichengg.github.io/stb.github.io/">Project</a> •
   <a href="#the-virtual-api-server">Server</a> •
   <a href="#solvable-queries">Solvable Queries</a> •
   <a href="#inference-with-our-stabletoolbench-server">Inference</a> •
   <a href="#stabletooleval">StableToolEval</a> •
-  <!-- <a href="">Paper</a> • -->
+  <a href="https://arxiv.org/pdf/2403.07714.pdf">Paper</a> •
   <a href="#citation">Citation</a>
 
 </p>
 
 </div>
 
-Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, especially ToolBench (Qin et al., 2023), we developed this new benchmark aiming to balance the stability and reality.
+Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality based on ToolBench (Qin et al., 2023).
 
 ## Features
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
