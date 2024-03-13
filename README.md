@@ -255,7 +255,7 @@ Below are the main results. Win rate for each model is compared with ChatGPT-ReA
 | GPT-4-Turbo-Preview (CoT) | 63.1±1.0 | 64.5±0.5 | 55.3±0.3 | 63.0±0.8 | 57.3±0.8 | 61.7±0.8 | 60.8±0.7 |
 | GPT-4-Turbo-Preview (DFS) | **70.8±1.0** | **71.1±0.7** | 70.4±1.2 | 70.4±1.3 | 71.7±0.4 | **84.7±1.7** | **73.2±1.1** |
 
-In this experiment, we run all models once, evaluate three times and take the average results. C and D stand for CoT and DFS respectively. The experiments below follow the denotation.
+In this experiment, we run all models once, evaluate three times and take the average results. 
 
 
 **Solvable Win Rate:** (Reference model: ChatGPT-CoT)
