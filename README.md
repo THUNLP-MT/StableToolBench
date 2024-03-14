@@ -19,11 +19,11 @@
 
 </div>
 
-Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality based on ToolBench (Qin et al., 2023).
+Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
 ## Features
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
-- **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing sigificant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. 
+- **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing significant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. 
 - **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
 
 
@@ -36,7 +36,7 @@ Our Virtual API server featured two components, the API simulation system with G
 
 
 ### Building from Source
-Before you run any code, please first setup the environment by running `pip install -r requirements.txt`.
+Before you run any code, please first set up the environment by running `pip install -r requirements.txt`.
 
 To start the server, you need to provide a cache directory and an OpenAI key.
 
@@ -60,9 +60,9 @@ You need to first specify your configurations in `server/config.yml` before runn
  - `model`: The OpenAI model to use. The default value is gpt-4-turbo-preview.
  - `temperature`: The temperature for LLM simulation. The default value is 0.
  - `toolbench_url`: The real ToolBench server URL. The default value is `http://8.218.239.54:8080/rapidapi`.
- - `tools_folder`: The tools enviroment folder path. Default to `./tools`.
+ - `tools_folder`: The tools environment folder path. Default to `./tools`.
  - `cache_folder`: The cache folder path. Default to `./tool_response_cache`.
- - `is_save`: A flag to indicate whether to save real and simulated response into the cache. The new cache is saved at `./tool_response_new_cache`.
+ - `is_save`: A flag to indicate whether to save real and simulated responses into the cache. The new cache is saved at `./tool_response_new_cache`.
  - `port`: The server port to run on, default to 8080.
 
 Now you can run the server by running:
@@ -100,12 +100,12 @@ print(response.text)
 
 
 ## Solvable Queries
-The original queries are curated without considering the solvability but judging the solvability with ChatGPT on the fly will cause sigificant instability. Therefore, we judge the solvability of the original queries with majority vote of `gpt-4-turbo`, `gemini-pro` and `claude-2`. The filtered queries are saved in `solvable_queries`.
+The original queries are curated without considering the solvability but judging the solvability with ChatGPT on the fly will cause significant instability. Therefore, we judge the solvability of the original queries with the majority vote of `gpt-4-turbo`, `gemini-pro` and `claude-2`. The filtered queries are saved in `solvable_queries`.
 
 
 ## Inference With Our StableToolBench Server
 If you have not set up the environment, please first do so by running `pip install -r requirements.txt`.
-We currently implemented all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`. An example of results is shown in `data_example/answer`.
+We currently implement all models and algorithms supported by ToolBench. We show ChatGPT (`gpt-3.5-turbo-16k`) with CoT as an example here. The script is also shown in `inference_chatgpt_pipeline_virtual.sh`. An example of the results is shown in `data_example/answer`.
 
 To use ChatGPT, run:
 ```bash
@@ -133,12 +133,12 @@ python toolbench/inference/qa_pipeline_multithread.py \
 
 
 ## StableToolEval
-We basically follow the evaluation process of ToolBench. The difference is that we update the evaluation logic of Pass Rate and Win Rate, resulting in Solvable Pass Rate and Solvable Win Rate.
+We follow the evaluation process of ToolBench. The difference is that we update the evaluation logic of the Pass Rate and Win Rate, resulting in the Solvable Pass Rate and Solvable Win Rate.
 
 
-The first step is prepare data. This step is the same as ToolEval in ToolBench.
+The first step is to prepare data. This step is the same as ToolEval in ToolBench.
 The following paragraph is adapted from ToolBench.
-To evaluate your own model and method using ToolEval, first you need to prepare all the model predictions for the six test subsets. Create a directory naming with your model and method, e.g. `chatgpt_cot` then put each test set's predictions under the directory. The file sturcture of the directory should be:
+To evaluate your model and method using ToolEval, you first need to prepare all the model predictions for the six test subsets. Create a directory naming with your model and method, e.g. `chatgpt_cot` then put each test set's predictions under the directory. The file structure of the directory should be:
 ```
 ├── /chatgpt_cot/
 │  ├── /G1_instruction/
@@ -172,7 +172,7 @@ python convert_to_answer_format.py\
 ```
 
 
-Next you can calculate the Solvable Pass Rate. Before running the process, you need to specify your evaluation OpenAI key in `openai_key.json` as follows:
+Next, you can calculate the Solvable Pass Rate. Before running the process, you need to specify your evaluation OpenAI key in `openai_key.json` as follows:
 ```bash
 [
     {
@@ -207,7 +207,7 @@ Note that we use `gpt-4-turbo-preview` as the standard evaluation model, which p
 
 The result files will be stored under the ${SAVE_PATH}.
 
-Then you can calcualte the SoWR. The below example take ChatGPT-CoT as reference model and ChatGPT-DFS as candidate model. Note that you need to get both model's pass rate results first.
+Then you can calculate the SoWR. The below example takes ChatGPT-CoT as the reference model and ChatGPT-DFS as the candidate model. Note that you need to get both model's pass rate results first.
 ```bash
 cd  toolbench/tooleval
 export API_POOL_FILE=../../openai_key.json
@@ -237,8 +237,8 @@ The result files will be stored under the ${SAVE_PATH}.
 ### Model Experiments Results
 
 
-In our main experiments, ToolLLaMA(v2) demonstrates a compelling capability to handle both single-tool and complex multi-tool instructions, which on a par with ChatGPT.
-Below are the main results. Win rate for each model is compared with ChatGPT-ReACT.
+In our main experiments, ToolLLaMA(v2) demonstrates a compelling capability to handle both single-tool and complex multi-tool instructions, which is on par with ChatGPT.
+Below are the main results. The win rate for each model is compared with ChatGPT-ReACT.
 
 
 **Solvable Pass Rate:**
@@ -255,7 +255,7 @@ Below are the main results. Win rate for each model is compared with ChatGPT-ReA
 | GPT-4-Turbo-Preview (CoT) | 63.1±1.0 | 64.5±0.5 | 55.3±0.3 | 63.0±0.8 | 57.3±0.8 | 61.7±0.8 | 60.8±0.7 |
 | GPT-4-Turbo-Preview (DFS) | **70.8±1.0** | **71.1±0.7** | 70.4±1.2 | 70.4±1.3 | 71.7±0.4 | **84.7±1.7** | **73.2±1.1** |
 
-In this experiment, we run all models once, evaluate three times and take the average results. 
+In this experiment, we run all models once, evaluate them three times, and take the average results. 
 
 
 **Solvable Win Rate:** (Reference model: ChatGPT-CoT)
@@ -271,10 +271,9 @@ In this experiment, we run all models once, evaluate three times and take the av
 | GPT-4-Turbo-Preview (CoT) | 68.7 | 71.9 | 58.2 | 71.0 | 76.4 | 73.8 | 70.0 |
 | GPT-4-Turbo-Preview (DFS) | **66.9** | **73.9** | **68.4** | **72.6** | **78.3** | **77.0** | **72.9** |
 
-We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
+We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate them three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
  ## Citation
-Feel free to cite us if you like StableToolBench.
 ```
 @misc{guo2024stabletoolbench,
       title={StableToolBench: Towards Stable Large-Scale Benchmarking on Tool Learning of Large Language Models}, 
