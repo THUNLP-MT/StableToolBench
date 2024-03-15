@@ -1,0 +1,9 @@
+fastapi==0.110.0
+openai==0.27.8
+pydantic==1.10.11
+PyYAML==6.0.1
+PyYAML==6.0.1
+Requests==2.31.0
+slowapi==0.1.9
+tenacity==8.2.2
+uvicorn==0.28.0
