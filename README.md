@@ -53,7 +53,7 @@ We provide a cache to download from [Google Drive](https://drive.google.com/file
 │  ├── utils.py
 ```
 
-#### Running the server
+#### Running the server directly
 You need to first specify your configurations in `server/config.yml` before running the server. Parameters needed are:
  - `api_key`: The API key for OpenAI models.
  - `api_base`: The API base for OpenAI models if you are using Azure.
@@ -96,6 +96,24 @@ headers = {
 # Make the POST request
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
+```
+
+#### Running the server using Docker
+
+We provide a `Dockerfile` for easy deployment and consistent server environment. This allows you to run the server on various platforms that support Docker.
+
+***Prerequisites:***
+
+* Docker installed: https://docs.docker.com/engine/install/
+
+***Building the Docker Image:***
+
+1. Navigate to your project directory in the terminal.
+2. Build the Docker image using the following command:
+
+```bash
+docker build -t my-fastapi-server .  # Replace 'my-fastapi-server' with your desired image name
+docker run -p 8080:8080 my-fastapi-server  # Replace 'my-fastapi-server' with your image name
 ```
 
 
