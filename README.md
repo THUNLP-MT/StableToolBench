@@ -1,5 +1,5 @@
 <div align= "center">
-    <h1> StableToolBench</h1>
+    <h1> <img src="stbicon.svg" alt="favicon" style="width: 35px; height: auto;"> StableToolBench</h1>
 </div>
 
 <div align="center">
