@@ -291,6 +291,8 @@ In this experiment, we run all models once, evaluate them three times, and take 
 
 We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate them three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
+## Acknowledgement
+We thank Jingwen Wu and Yao Li for their contributions to experiments and result presentation. We also appreciate Yile Wang and Jitao Xu for their valuable suggestions during discussions.
  ## Citation
 ```
 @misc{guo2024stabletoolbench,
