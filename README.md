@@ -37,7 +37,7 @@ Before you run any code, please first set up the environment by running `pip ins
 To start the server, you need to provide a cache directory and an OpenAI key.
 
 #### Downloading the cache
-We provide a cache to download from [Google Drive](https://drive.google.com/file/d/1XUiCMA5NV359UGR-eknF0TcXORuR7RXj/view?usp=sharing) or [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/07ee752ad20b43ed9b0d/?dl=1). After downloading the cache, unzip the folder into the `server` folder and ensure the `server` folder contains `tool_response_cache` folder and `tools` folder. The resulting folder of `server` looks like:
+We provide a cache to download from [HuggingFace](https://huggingface.co/datasets/zhichengg/StableToolBenchCache/) or [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/07ee752ad20b43ed9b0d/?dl=1). After downloading the cache, unzip the folder into the `server` folder and ensure the `server` folder contains `tool_response_cache` folder and `tools` folder. The resulting folder of `server` looks like:
 ```
 ├── /server/
 │  ├── /tools/
