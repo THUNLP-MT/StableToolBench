@@ -17,7 +17,6 @@
 
 </p>
 
-</div>
 
 Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
@@ -29,11 +28,8 @@ Welcome to **StableToolBench**. Faced with the instability of Tool Learning benc
 
 ## The Virtual API Server
 <!-- Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code. -->
-Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. You can pull the source of the codes and download relevant data to run it.
-<!-- ### The Public Server
-
-### The Docker Container -->
-
+Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provide two methods to use the virtual API system: [building from source](#building-from-source) and using [our prebuilt Docker](#using-the-prebuilt-docker-image).
+<!-- ### The Public Server -->
 
 ### Building from Source
 Before you run any code, please first set up the environment by running `pip install -r requirements.txt`.
@@ -73,6 +69,35 @@ python main.py
 The server will be run at `http://localhost:{port}/virtual`. 
 To use the server, you will further need a toolbench key. You can apply one from this [form](https://forms.gle/oCHHc8DQzhGfiT9r6).
 
+#### Running the server using Docker
+
+We provide a `Dockerfile` for easy deployment and consistent server environment. This allows you to run the server on various platforms that support Docker.
+
+***Prerequisites:***
+
+* Docker installed: https://docs.docker.com/engine/install/
+
+***Building the Docker Image:***
+
+1. Navigate to your project directory in the terminal.
+2. Build the Docker image using the following command:
+
+```bash
+docker build -t my-fastapi-server .  # Replace 'my-fastapi-server' with your desired image name
+docker run -p {port}:8080 my-fastapi-server  # Replace 'my-fastapi-server' with your image name
+```
+### Using the Prebuilt Docker Image
+You can also use our prebuilt Docker image from Docker Hub hosted at https://hub.docker.com/repository/docker/zhichengg/stb-docker/general. 
+Before running the docker, you will need to install docker and download the cache files as described in [Building from Source](#building-from-source).
+Then you can run the server using the following command:
+```bash
+docker pull zhichengg/stb-docker:latest
+docker run -p {port}:8080 -v {tool_response_cache_path}:/app/tool_response_cache -v {tools_path}:/app/tools -e OPENAI_API_KEY= -e OPENAI_API_BASE= zhichengg/stb-docker
+```
+Remember to fill in the `port`, `tool_response_cache_path`, and `tools_path` with your own values. The `OPENAI_API_KEY` and `OPENAI_API_BASE` are the OpenAI API key and API base if you are using Azure. The server will be run at `http://localhost:{port}/virtual`.
+
+
+### Testing the Server
 You can test the server with
 ```
 import requests
@@ -96,24 +121,6 @@ headers = {
 # Make the POST request
 response = requests.post(url, headers=headers, data=json.dumps(data))
 print(response.text)
-```
-
-#### Running the server using Docker
-
-We provide a `Dockerfile` for easy deployment and consistent server environment. This allows you to run the server on various platforms that support Docker.
-
-***Prerequisites:***
-
-* Docker installed: https://docs.docker.com/engine/install/
-
-***Building the Docker Image:***
-
-1. Navigate to your project directory in the terminal.
-2. Build the Docker image using the following command:
-
-```bash
-docker build -t my-fastapi-server .  # Replace 'my-fastapi-server' with your desired image name
-docker run -p 8080:8080 my-fastapi-server  # Replace 'my-fastapi-server' with your image name
 ```
 
 
