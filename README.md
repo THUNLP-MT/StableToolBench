@@ -21,10 +21,10 @@
 Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
 ## Features
-- **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs.
-- **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing significant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. 
+Based on the large scale of ToolBench, we introduce the following features to ensure the stability and reality of the benchmark:
+- **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs. Note that we keep the large-scale diverse APIs environment from ToolBench.
+- **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing significant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. We maintain the same query and answer format as ToolBench for seamless transition from it.
 - **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
-
 
 ## The Virtual API Server
 <!-- Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code. -->
