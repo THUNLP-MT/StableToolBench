@@ -135,7 +135,7 @@ class OpenAINormalizedEvaluator(ToolEvalEvaluator):
             parsed_ans['total_steps'] = ans['total_steps']
             parsed_answers.append(parsed_ans)
 
-        # calculate socre and return one with highest score
+        # calculate score and return one with highest score
         scores = []
         for ans in parsed_answers:
             score = 0
