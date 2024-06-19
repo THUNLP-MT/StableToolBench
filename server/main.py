@@ -21,9 +21,12 @@ CONFIG = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
 print(CONFIG)
 CACHE_FOLDER = CONFIG['cache_folder']
 # OpenAI API
-import openai
-openai.api_base = CONFIG['api_base']
-openai.api_key = CONFIG['api_key']
+from openai import OpenAI
+if 'api_base' in CONFIG:
+    OPENAI_API_BASE=CONFIG['api_base']
+else:
+    OPENAI_API_BASE="https://api.openai.com/v1"
+OPENAI_API_KEY=CONFIG['api_key']
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -229,7 +232,7 @@ def check_result(processes_value: dict):
         return False
     return True
 
-def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder='./tool_response_new_cache'):
+def save_cache(cache, tool_input, result, standard_category, tool_name, api_name, save_folder=CACHE_FOLDER):
     # save cache
     try:
         if isinstance(result, dict):
@@ -275,19 +278,19 @@ Note that:
     user_prompt = "API Documentation:"+str(api_doc)+"\n"+"API Examples:"+str(api_example)[:2048]+"\n"+"API Input:"+str(tool_input)+"\n"
     user_prompt = {"role": "user", "content": user_prompt}
 
-    # client = OpenAI(
-    #     api_key = CONFIG['api_key'],
-    #     base_url = CONFIG['api_base'],
-    # )
+    client = OpenAI(
+        api_key = OPENAI_API_KEY,
+        base_url = OPENAI_API_BASE,
+    )
     max_retries = 3 
     flag = False
     for attempt in range(max_retries):
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model = CONFIG['model'],
             messages=[system_prompt, user_prompt],
             max_tokens = 1024,
-            response_format = { "type": "json_object" },
-            temperature=CONFIG['temperature']
+            temperature=CONFIG['temperature'],
+            response_format={"type": "json_object"},
         )
         result = response.choices[0].message.content
         if "```json" in result:

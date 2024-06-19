@@ -5,7 +5,7 @@ export SAVE_PATH=../../data_example/preference_results
 export PASS_RATE_PATH=../../data_example/pass_rate_results
 export REFERENCE_MODEL=virtual_chatgpt_cot
 export CANDIDATE_MODEL=virtual_chatgpt_dfs
-export EVAL_MODEL=gpt-4-turbo-preview
+export EVAL_MODEL=gpt-3.5-turbo
 mkdir -p ${SAVE_PATH}
 
 

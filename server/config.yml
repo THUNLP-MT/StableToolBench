@@ -1,6 +1,6 @@
-api_key: 
-api_base: 
-model: gpt-4-turbo-preview
+api_key:
+api_base:
+model: gpt-4-turbo
 temperature: 0
 toolbench_url: http://8.218.239.54:8080/rapidapi
 tools_folder: "./tools"

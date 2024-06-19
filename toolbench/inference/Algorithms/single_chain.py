@@ -109,7 +109,9 @@ class single_chain(base_search_method):
         while True:
             # recursively parse message into nodes
             self.llm.change_messages(now_node.messages)
-            new_message,error_code,total_tokens = self.llm.parse(functions=self.io_func.functions,process_id=self.process_id)
+            # new_message,error_code,total_tokens = self.llm.parse(functions=self.io_func.functions,process_id=self.process_id)
+            new_message, error_code, total_tokens = self.llm.parse(tools=self.io_func.functions,
+                                                                   process_id=self.process_id)
             self.total_tokens += total_tokens
             self.query_count += 1
             assert new_message["role"] == "assistant"
@@ -131,57 +133,74 @@ class single_chain(base_search_method):
                     now_node.observation_code = error_code
                     now_node.pruned = True
 
-            if "function_call" in new_message.keys():
-                function_name = new_message["function_call"]["name"]
-                temp_node = tree_node()
-                temp_node.node_type = "Action"
-                temp_node.description = function_name
-                child_io_state = deepcopy(now_node.io_state)
-                
-                temp_node.io_state = child_io_state
-                temp_node.is_terminal = child_io_state.check_success() != 0 
-                temp_node.messages = now_node.messages.copy()
-                temp_node.father = now_node
-                now_node.children.append(temp_node)
 
-                temp_node.print(self.process_id)
-                now_node = temp_node
+            if "tool_calls" in new_message.keys() and new_message["tool_calls"] != None and len(new_message["tool_calls"]) > 0:
+                tool_calls = new_message["tool_calls"]
+                if self.process_id == 0:
+                    print("number of parallel calls:",len(tool_calls))
 
-                function_input = new_message["function_call"]["arguments"]
-                temp_node = tree_node()
-                temp_node.node_type = "Action Input"
-                temp_node.description = function_input
-                child_io_state = deepcopy(now_node.io_state)
+                # lastnode = now_node
+                for i in range(len(tool_calls)):
+                    function_name = tool_calls[i]["function"]["name"]
+                    temp_node = tree_node()
+                    temp_node.node_type = "Action"
+                    temp_node.description = function_name
+                    child_io_state = deepcopy(now_node.io_state)
+                    
+                    temp_node.io_state = child_io_state
+                    temp_node.is_terminal = child_io_state.check_success() != 0 
+                    temp_node.messages = now_node.messages.copy()
+                    temp_node.father = now_node
+                    now_node.children.append(temp_node)
 
-                observation, status = child_io_state.step(action_name=now_node.description, action_input=function_input)
-                temp_node.observation = observation
-                temp_node.observation_code = status
+                    temp_node.print(self.process_id)
+                    now_node = temp_node
 
-                temp_node.io_state = child_io_state
-                temp_node.is_terminal = child_io_state.check_success() != 0 
-                temp_node.messages = now_node.messages.copy()
-                temp_node.father = now_node
-                now_node.children.append(temp_node)
-                temp_node.print(self.process_id)
-                now_node = temp_node
+                    # function_input = new_message["function_call"]["arguments"]
+                    function_input = tool_calls[i]["function"]["arguments"]
+                    temp_node = tree_node()
+                    temp_node.node_type = "Action Input"
+                    temp_node.description = function_input
+                    child_io_state = deepcopy(now_node.io_state)
+                    
 
-                if status != 0:
-                    # return code refers to Downstream_tasks/rapidapi
-                    if status == 4:
-                        now_node.pruned = True
-                    elif status == 1: # hallucination api name
-                        assert "function_call" in new_message.keys()
-                        new_message["function_call"]["name"] = "invalid_hallucination_function_name"
+                    observation, status = child_io_state.step(action_name=now_node.description, action_input=function_input)
+                    temp_node.observation = observation
+                    temp_node.observation_code = status
+
+                    temp_node.io_state = child_io_state
+                    temp_node.is_terminal = child_io_state.check_success() != 0 
+                    temp_node.messages = now_node.messages.copy()
+                    temp_node.father = now_node
+                    now_node.children.append(temp_node)
+                    temp_node.print(self.process_id)
+                    now_node = temp_node
+
+                    if status != 0:
+                        # return code refers to Downstream_tasks/rapidapi
+                        if status == 4:
+                            now_node.pruned = True
+                        elif status == 1: # hallucination api name
+                            assert "tool_calls" in new_message.keys() and len(new_message["tool_calls"]) > 0
+                            tool_calls[i]["function"]["name"] = "invalid_hallucination_function_name"
+
+
+                    if i==0:
+                        now_node.messages.append(new_message)
+                    if now_node.node_type == "Action Input":
+                        now_node.messages.append({
+                            "role":"tool",
+                            # "name": new_message["function_call"]["name"],
+                            "name": tool_calls[i]["function"]["name"],
+                            "content": now_node.observation,
+                            "tool_call_id": tool_calls[i]['id'],
+                        })
+            else:
+                now_node.messages.append(new_message)
             
-            now_node.messages.append(new_message)
-            if now_node.node_type == "Action Input":
-                now_node.messages.append({
-                    "role":"function",
-                    "name": new_message["function_call"]["name"],
-                    "content": now_node.observation,
-                })
             if now_node.get_depth() >= single_chain_max_step and not (now_node.is_terminal):
                 now_node.pruned = True
+            # import pdb; pdb.set_trace()
             
             if now_node.pruned or now_node.is_terminal:
                 return now_node

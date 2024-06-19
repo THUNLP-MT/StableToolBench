@@ -12,6 +12,8 @@ if __name__ == "__main__":
     parser.add_argument('--retrieval_model_path', type=str, default="your_model_path/", required=False, help='')
     parser.add_argument('--retrieved_api_nums', type=int, default=5, required=False, help='')
     parser.add_argument('--backbone_model', type=str, default="toolllama", required=False, help='chatgpt_function or davinci or toolllama')
+    parser.add_argument('--chatgpt_model', type=str, default="gpt-4-turbo-2024-04-09", required=False, help='gpt-3.5-turbo or gpt-4')
+    parser.add_argument('--base_url', type=str, default="https://api.openai.com/v1", required=False, help='openai api url')
     parser.add_argument('--openai_key', type=str, default="", required=False, help='openai key for chatgpt_function or davinci model')
     parser.add_argument('--model_path', type=str, default="your_model_path/", required=False, help='')
     parser.add_argument('--tool_root_dir', type=str, default="your_tools_path/", required=True, help='')

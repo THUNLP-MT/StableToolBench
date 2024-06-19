@@ -20,6 +20,10 @@
 
 Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
+## Updates
+- **[2024.06.19]** We update the OpenAI API to the newest version, which also support parallel function calling now.
+
+
 ## Features
 Based on the large scale of ToolBench, we introduce the following features to ensure the stability and reality of the benchmark:
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs. Note that we keep the large-scale diverse APIs environment from ToolBench.

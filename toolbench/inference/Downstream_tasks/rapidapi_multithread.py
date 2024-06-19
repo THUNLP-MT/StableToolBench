@@ -86,27 +86,29 @@ class rapidapi_wrapper(base_env):
             standard_tool_name = tool_descriptions[k][0]
             openai_function_json,cate_name, pure_api_name = self.api_json_to_openai_json(api_json,standard_tool_name)
             self.functions.append(openai_function_json)
-
-            self.api_name_reflect[openai_function_json["name"]] = pure_api_name
+            self.api_name_reflect[openai_function_json["function"]["name"]] = pure_api_name
             self.tool_names.append(standard_tool_name)
             self.cate_names.append(cate_name)
 
         finish_func = {
-            "name": "Finish",
-            "description": "If you believe that you have obtained a result that can answer the task, please call this function to provide the final answer. Alternatively, if you recognize that you are unable to proceed with the task in the current state, call this function to restart. Remember: you must ALWAYS call this function at the end of your attempt, and the only part that will be shown to the user is the final answer, so it should contain sufficient information.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "return_type": {
-                        "type": "string",
-                        "enum": ["give_answer","give_up_and_restart"],
+            "type": "function",
+            "function": {
+                "name": "Finish",
+                "description": "If you believe that you have obtained a result that can answer the task, please call this function to provide the final answer. Alternatively, if you recognize that you are unable to proceed with the task in the current state, call this function to restart. Remember: you must ALWAYS call this function at the end of your attempt, and the only part that will be shown to the user is the final answer, so it should contain sufficient information.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "return_type": {
+                            "type": "string",
+                            "enum": ["give_answer","give_up_and_restart"],
+                        },
+                        "final_answer": {
+                            "type": "string",
+                            "description": "The final answer you want to give the user. You should have this field if \"return_type\"==\"give_answer\"",
+                        }
                     },
-                    "final_answer": {
-                        "type": "string",
-                        "description": "The final answer you want to give the user. You should have this field if \"return_type\"==\"give_answer\"",
-                    }
+                    "required": ["return_type"],
                 },
-                "required": ["return_type"],
             }
         }
 
@@ -186,19 +188,24 @@ You have access of the following tools:\n'''
                 print(api_name, api_dict_names)
         return data_dict
 
+
     def api_json_to_openai_json(self, api_json,standard_tool_name):
         description_max_length=256
-        templete =     {
-            "name": "",
-            "description": "",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                },
-                "required": [],
-                "optional": [],
+        function_templete = {
+            "type": "function",
+            "function": {
+                "name": "",
+                "description": "",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                    },
+                    "required": [""],
+                    "optional": [""],
+                }
             }
         }
+        templete = function_templete['function']
         
         map_type = {
             "NUMBER": "integer",
@@ -267,7 +274,7 @@ You have access of the following tools:\n'''
                 templete["parameters"]["properties"][name] = prompt
                 templete["parameters"]["optional"].append(name)
 
-        return templete, api_json["category_name"],  pure_api_name
+        return function_templete, api_json["category_name"],  pure_api_name
 
     def check_success(self):
         return self.success
@@ -333,7 +340,9 @@ You have access of the following tools:\n'''
                 return "{error:\"\"return_type\" is not a valid choice\"}", 2
         else:
 
-            for k, function in enumerate(self.functions):
+            for k, function_dict in enumerate(self.functions):
+                function = function_dict['function']
+                # import pdb; pdb.set_trace()
                 if function["name"].endswith(action_name):
                     pure_api_name = self.api_name_reflect[function["name"]]
                     payload = {
@@ -362,7 +371,7 @@ You have access of the following tools:\n'''
                         try:
                             response = response.json()
                         except:
-                            # print(response)
+                            print(response)
                             return json.dumps({"error": f"request invalid, data error", "response": ""}), 12
                     # 1 Hallucinating function names
                     # 4 means that the model decides to pruning by itself
@@ -453,10 +462,13 @@ class pipeline_runner:
     def method_converter(self, backbone_model, openai_key, method, env, process_id, single_chain_max_step=12, max_query_count=60, callbacks=None):
         if callbacks is None: callbacks = []
         if backbone_model == "chatgpt_function":
-            model = os.getenv("GPT_MODEL", "gpt-3.5-turbo-16k-0613")
-            llm_forward = ChatGPTFunction(model=model, openai_key=openai_key)
+            # model = "gpt-3.5-turbo-16k-0613"
+            # model = os.getenv('CHAT_MODEL', "gpt-3.5-turbo-16k-0613")
+            # base_url = os.getenv('OPENAI_API_BASE', None)
+            llm_forward = ChatGPTFunction(model=self.args.chatgpt_model, openai_key=openai_key, base_url=self.args.base_url)
         elif backbone_model == "davinci":
-            model = "text-davinci-003"
+            model = os.getenv('CHAT_MODEL', "gpt-3.5-turbo-16k-0613")
+            base_url = os.getenv('OPENAI_API_BASE', None)
             llm_forward = Davinci(model=model, openai_key=openai_key)
         else:
             model = backbone_model
@@ -519,8 +531,9 @@ class pipeline_runner:
             method=method,
             env=env,
             process_id=process_id,
-            single_chain_max_step=12,
-            max_query_count=200,
+            single_chain_max_step=args.single_chain_max_step,
+            # max_query_count=200,
+            max_query_count=args.max_query_count,
             callbacks=callbacks
         )
         [callback.on_request_end(

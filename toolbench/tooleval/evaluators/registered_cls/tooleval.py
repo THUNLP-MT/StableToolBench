@@ -88,8 +88,10 @@ class OpenAINormalizedEvaluator(ToolEvalEvaluator):
         if eval_model:
             completion_kwargs['model'] = eval_model
         
-        completion_kwargs['function_call'] = {'name':func_name}
-        completion_kwargs['functions'] = [func_description]
+
+        completion_kwargs.pop('functions')
+        completion_kwargs['tools'] = [{'type':'function','function': func_description}]
+        completion_kwargs['tool_choice'] = {"type": "function", "function": {"name": func_name}}
 
         completion_kwargs['messages'] = [{
             'role':'user',
@@ -97,8 +99,7 @@ class OpenAINormalizedEvaluator(ToolEvalEvaluator):
         }]
                     
         res = self.opr.request(**completion_kwargs)
-        ret = json.loads(res.choices[0].message.function_call.arguments)
-        
+        ret = json.loads(res.choices[0].message.tool_calls[0].function.arguments)
         # check required items
         required_args = getattr(func_description['parameters'],'required',None)
         if required_args is not None:
