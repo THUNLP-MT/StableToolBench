@@ -21,7 +21,7 @@
 Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
 ## Updates
-- **[2024.06.19]** We update the OpenAI API to the newest version, which also support parallel function calling now.
+- **[2024.06.19]** We update the OpenAI API to the newest version, which also support parallel function calling now. We also updated the model performance evaluation using `gpt-4-turbo-2024-04-09`, replacing `gpt-4-turbo-preview`, which we found may produce unstable evaluations. The inference results (run in Feb 2024) can be found on [Huggingface](https://huggingface.co/datasets/stabletoolbench/baselines).
 
 
 ## Features
@@ -41,7 +41,7 @@ Before you run any code, please first set up the environment by running `pip ins
 To start the server, you need to provide a cache directory and an OpenAI key.
 
 #### Downloading the cache
-We provide a cache to download from [HuggingFace](https://huggingface.co/datasets/zhichengg/StableToolBenchCache/) or [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/07ee752ad20b43ed9b0d/?dl=1). After downloading the cache, unzip the folder into the `server` folder and ensure the `server` folder contains `tool_response_cache` folder and `tools` folder. The resulting folder of `server` looks like:
+We provide a cache to download from [HuggingFace](https://huggingface.co/datasets/stabletoolbench/Cache) or [Tsinghua Cloud](https://cloud.tsinghua.edu.cn/f/07ee752ad20b43ed9b0d/?dl=1). After downloading the cache, unzip the folder into the `server` folder and ensure the `server` folder contains `tool_response_cache` folder and `tools` folder. The resulting folder of `server` looks like:
 ```
 ├── /server/
 │  ├── /tools/
@@ -266,40 +266,63 @@ The result files will be stored under the ${SAVE_PATH}.
 ### Model Experiments Results
 
 
-In our main experiments, ToolLLaMA(v2) demonstrates a compelling capability to handle both single-tool and complex multi-tool instructions, which is on par with ChatGPT.
-Below are the main results. The win rate for each model is compared with ChatGPT-ReACT.
-
+Below are the main results (Inference done in Feb 2024). The win rate for each model is compared with ChatGPT-ReACT. We use `gpt-4-turbo-2024-04-09` as the evaluator. Evaluation done in May 2024.
 
 **Solvable Pass Rate:**
 | **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Category** | **I2 Instruction** | **I3 Instruction** | **Average** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GPT-3.5-Turbo-0613  (CoT) | 55.9±1.0 | 50.8±0.8 | 55.9±1.0 | 44.1±0.8 | 36.2±0.4 | 51.4±1.5 | 49.1±1.0 |
-| GPT-3.5-Turbo-0613 (DFS) | 66.4±1.5 | 64.3±1.0 | 67.2±2.4 | 67.7±0.8 | 61.5±1.0 | 81.4±1.5 | 68.1±1.4 |
-| GPT-4-0613 (CoT) | 50.7±0.4 | 57.1±0.3 | 51.9±0.3 | 55.0±1.1 | 61.6±0.8 | 56.3±0.8 | 55.4±0.6 |
-| GPT-4-0613 (DFS) | 65.5±1.1 | 62.0±1.7 | 72.1±1.6 | **70.8±1.3** | **73.1±1.4** | 74.9±1.5 | 69.7±1.4 |
-| ToolLLaMA v2 (CoT) | 37.2±0.1 | 42.3±0.4 | 43.0±0.5 | 37.4±0.4 | 33.6±1.2 | 39.6±1.0 | 38.9±0.6 |
-| ToolLLaMA v2 (DFS) | 59.8±1.5 | 59.5±1.4 | 65.7±1.1 | 56.5±0.3 | 47.6±0.4 | 62.8±1.9 | 58.7±1.1 |
-| GPT-3.5-Turbo-1106 (CoT) | 51.3±0.6 | 48.8±0.3 | 59.9±0.8 | 50.8±0.7 | 43.2±0.8 | 58.5±0.8 | 52.1±0.7 |
-| GPT-3.5-Turbo-1106 (DFS) | 67.8±0.9 | 67.2±0.3 | **72.9±0.7** | 63.2±1.0 | 70.9±0.4 | 77.6±0.8 | 69.9±0.7 |
-| GPT-4-Turbo-Preview (CoT) | 63.1±1.0 | 64.5±0.5 | 55.3±0.3 | 63.0±0.8 | 57.3±0.8 | 61.7±0.8 | 60.8±0.7 |
-| GPT-4-Turbo-Preview (DFS) | **70.8±1.0** | **71.1±0.7** | 70.4±1.2 | 70.4±1.3 | 71.7±0.4 | **84.7±1.7** | **73.2±1.1** |
+| GPT-3.5-Turbo-0613 (CoT) | 52.2±1.1 | 47.3±0.6 | 53.6±1.3 | 42.5±2.1 | 35.8±2.0 | 48.1±0.8 | 46.6±1.3 |
+| GPT-3.5-Turbo-0613 (DFS) | 60.3±1.3 | 66.2±1.2 | 67.1±0.0 | 59.1±0.4 | 51.3±1.2 | 73.8±2.3 | 63.0±1.1 |
+| GPT-4-0613 (CoT) | 45.5±0.4 | 57.4±0.3 | 48.8±0.7 | 43.0±0.7 | 46.5±0.9 | 48.1±1.5 | 48.2±0.8 |
+| GPT-4-0613 (DFS) | 57.3±0.6 | 57.3±0.3 | 60.9±1.0 | 57.9±1.0 | 51.3±0.8 | 66.4±2.4 | 58.5±1.0 |
+| ToolLLaMA v2 (CoT) | 32.3±1.0 | 40.3±0.8 | 36.7±0.5 | 34.7±0.7 | 25.2±0.4 | 33.9±1.5 | 33.9±0.8 |
+| ToolLLaMA v2 (DFS) | 44.5±0.9 | 49.6±1.3 | 48.9±2.7 | 50.8±1.1 | 31.9±1.9 | 53.6±2.0 | 46.6±1.7 |
+| GPT-3.5-Turbo-1106 (CoT) | 50.4±0.5 | 45.1±1.4 | 50.8±0.3 | 48.7±0.8 | 42.1±0.4 | 55.7±0.0 | 48.8±0.6 |
+| GPT-3.5-Turbo-1106 (DFS) | 62.8±0.3 | 63.9±1.2 | 65.6±0.3 | 56.5±0.7 | 56.9±1.2 | 67.2±1.3 | 62.2±0.8 |
+| GPT-4-Turbo-Preview (CoT) | 52.8±1.3 | 56.6±0.9 | 51.9±0.5 | 51.9±1.0 | 52.8±0.8 | 52.5±0.0 | 53.1±0.8 |
+| GPT-4-Turbo-Preview (DFS) | 59.2±0.5 | 61.7±0.7 | 65.7±1.0 | 55.6±0.6 | 55.2±0.4 | 66.1±4.3 | 60.6±1.3 |
+
+[//]: # (**Solvable Pass Rate:**)
+
+[//]: # (| **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Category** | **I2 Instruction** | **I3 Instruction** | **Average** |)
+
+[//]: # (| --- | --- | --- | --- | --- | --- | --- | --- |)
+
+[//]: # (| GPT-3.5-Turbo-0613  &#40;CoT&#41; | 55.9±1.0 | 50.8±0.8 | 55.9±1.0 | 44.1±0.8 | 36.2±0.4 | 51.4±1.5 | 49.1±1.0 |)
+
+[//]: # (| GPT-3.5-Turbo-0613 &#40;DFS&#41; | 66.4±1.5 | 64.3±1.0 | 67.2±2.4 | 67.7±0.8 | 61.5±1.0 | 81.4±1.5 | 68.1±1.4 |)
+
+[//]: # (| GPT-4-0613 &#40;CoT&#41; | 50.7±0.4 | 57.1±0.3 | 51.9±0.3 | 55.0±1.1 | 61.6±0.8 | 56.3±0.8 | 55.4±0.6 |)
+
+[//]: # (| GPT-4-0613 &#40;DFS&#41; | 65.5±1.1 | 62.0±1.7 | 72.1±1.6 | **70.8±1.3** | **73.1±1.4** | 74.9±1.5 | 69.7±1.4 |)
+
+[//]: # (| ToolLLaMA v2 &#40;CoT&#41; | 37.2±0.1 | 42.3±0.4 | 43.0±0.5 | 37.4±0.4 | 33.6±1.2 | 39.6±1.0 | 38.9±0.6 |)
+
+[//]: # (| ToolLLaMA v2 &#40;DFS&#41; | 59.8±1.5 | 59.5±1.4 | 65.7±1.1 | 56.5±0.3 | 47.6±0.4 | 62.8±1.9 | 58.7±1.1 |)
+
+[//]: # (| GPT-3.5-Turbo-1106 &#40;CoT&#41; | 51.3±0.6 | 48.8±0.3 | 59.9±0.8 | 50.8±0.7 | 43.2±0.8 | 58.5±0.8 | 52.1±0.7 |)
+
+[//]: # (| GPT-3.5-Turbo-1106 &#40;DFS&#41; | 67.8±0.9 | 67.2±0.3 | **72.9±0.7** | 63.2±1.0 | 70.9±0.4 | 77.6±0.8 | 69.9±0.7 |)
+
+[//]: # (| GPT-4-Turbo-Preview &#40;CoT&#41; | 63.1±1.0 | 64.5±0.5 | 55.3±0.3 | 63.0±0.8 | 57.3±0.8 | 61.7±0.8 | 60.8±0.7 |)
+
+[//]: # (| GPT-4-Turbo-Preview &#40;DFS&#41; | **70.8±1.0** | **71.1±0.7** | 70.4±1.2 | 70.4±1.3 | 71.7±0.4 | **84.7±1.7** | **73.2±1.1** |)
 
 In this experiment, we run all models once, evaluate them three times, and take the average results. 
 
 
 **Solvable Win Rate:** (Reference model: ChatGPT-CoT)
-| **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Category** | **I2 Instruction** | **I3 Instruction** | **Average** |
+| **Method** | **I1 Instruction** | **I1 Category** | **I1 Tool** | **I2 Instruction** | **I2 Category** | **I3 Instruction** | **Average** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| GPT-3.5-Turbo-0613 (DFS) | 57.7 | 60.8 | 61.4 | 66.1 | 63.2 | 70.5 | 63.3 |
-| GPT-4-0613 (CoT) | 50.3 | 54.2 | 50.6 | 50.0 | 64.2 | 55.7 | 54.2 |
-| GPT-4-0613 (DFS) | 57.1 | 60.1 | 57.0 | 64.5 | 74.5 | 72.1 | 64.2 |
-| ToolLLaMA v2 (CoT) | 35.0 | 30.7 | 37.3 | 31.5 | 36.8 | 23.0 | 32.4 |
-| ToolLLaMA v2 (DFS) | 43.6 | 45.1 | 38.6 | 42.7 | 53.8 | 45.9 | 44.9 |
-| GPT-3.5-Turbo-1106 (CoT) | 46.6 | 45.1 | 48.1 | 44.4 | 37.7 | 52.5 | 45.7 |
-| GPT-3.5-Turbo-1106 (DFS) | 56.4 | 54.2 | 51.9 | 54.0 | 62.3 | 72.1 | 58.5 |
-| GPT-4-Turbo-Preview (CoT) | 68.7 | 71.9 | 58.2 | 71.0 | 76.4 | 73.8 | 70.0 |
-| GPT-4-Turbo-Preview (DFS) | **66.9** | **73.9** | **68.4** | **72.6** | **78.3** | **77.0** | **72.9** |
-
+| GPT-3.5-Turbo-0613 (DFS) | 60.7 | 67.3 | 59.5 | 63.2 | 62.1 | 75.4 | 64.7 |
+| GPT-4-0613 (CoT) | 54.6 | 58.8 | 58.2 | 75.5 | 60.5 | 62.3 | 61.7 |
+| GPT-4-0613 (DFS) | 62.6 | 62.7 | 58.2 | 74.5 | 62.9 | 67.2 | 64.7 |
+| ToolLLaMA v2 (CoT) | 31.3 | 28.1 | 33.5 | 35.8 | 33.9 | 24.6 | 31.2 |
+| ToolLLaMA v2 (DFS) | 44.8 | 45.8 | 44.3 | 59.4 | 41.1 | 50.8 | 47.7 |
+| GPT-3.5-Turbo-1106 (CoT) | 47.2 | 47.7 | 44.9 | 50.9 | 54.0 | 62.3 | 51.2 |
+| GPT-3.5-Turbo-1106 (DFS) | 55.8 | 53.6 | 51.9 | 68.9 | 59.7 | 68.9 | 59.8 |
+| GPT-4-Turbo-Preview (CoT) | 71.2 | 77.1 | 61.4 | 79.2 | 71.8 | 67.2 | 71.3 |
+| GPT-4-Turbo-Preview (DFS) | **73.0** | **75.2** | **68.4** | **77.4** | **66.9** | **60.7** | **70.2** |
 We run all models once against `GPT-3.5-Turbo-0613 + CoT` and evaluate them three times. We follow the ToolBench implementation to take the most frequent result for each query during evaluation.
 
 ## Acknowledgement
