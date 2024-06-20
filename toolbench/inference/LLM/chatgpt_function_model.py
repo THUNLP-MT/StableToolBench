@@ -16,6 +16,10 @@ def chat_completion_request(key, base_url, messages, tools=None, tool_choice=Non
         if not ("valid" in message.keys() and message["valid"] == False):
             use_messages.append(message)
 
+    for message in use_messages:
+        if 'function_call' in message.keys():
+            message.pop('function_call')
+
     json_data = {
         "model": model,
         "messages": use_messages,
