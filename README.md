@@ -20,6 +20,9 @@
 
 Welcome to **StableToolBench**. Faced with the instability of Tool Learning benchmarks, we developed this new benchmark aiming to balance the stability and reality, based on [ToolBench](https://github.com/OpenBMB/ToolBench) (Qin et al., 2023).
 
+## Note for Applying ToolBench keys
+Note that if you have applied a ToolBench key but did not get a response for a long time, please contact Shihao Liang (shihaoliang0828@gmail.com) for further assistance.
+
 ## Updates
 - **[2024.06.19]** We update the OpenAI API to the newest version, which also support parallel function calling now. We also updated the model performance evaluation using `gpt-4-turbo-2024-04-09`, replacing `gpt-4-turbo-preview`, which we found may produce unstable evaluations. The inference results (run in Feb 2024) can be found on [Huggingface](https://huggingface.co/datasets/stabletoolbench/baselines).
 
