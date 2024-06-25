@@ -127,6 +127,6 @@ def process_retrieval_ducoment(documents_df):
         (doc.get('api_description', '') or '') + \
         ', required_params: ' + json.dumps(doc.get('required_parameters', '')) + \
         ', optional_params: ' + json.dumps(doc.get('optional_parameters', '')) + \
-        ', return_schema: ' + json.dumps(doc.get('template_response', ''))] = doc['category_name'] + '\t' + doc['tool_name'] + '\t' + doc['api_name']
+        ', return_schema: ' + json.dumps(doc.get('template_response', ''))] = doc['category_name'] + '[SEP]' + doc['tool_name'] + '[SEP]' + doc['api_name']
     return ir_corpus, corpus2tool
     
