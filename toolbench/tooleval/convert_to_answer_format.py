@@ -35,7 +35,7 @@ def process_valid_data(method,answer_generation):
     while index < len(conversation):
         message = conversation[index]
         role = message['role']
-        if role == 'system' or role == 'user' or role == 'function':
+        if role == 'system' or role == 'user' or role == 'function' or role == 'tool':
             index = index + 1
             continue
         elif role == 'assistant':
@@ -46,18 +46,44 @@ def process_valid_data(method,answer_generation):
                     'response':conversation[index+1]['content'] if message['function_call']['name']!='Finish' else ''
                     })
                 index = index + 1
+            elif 'tool_calls' in message and message['tool_calls'] is not None:
+                calls = message['tool_calls']
+                for tc in calls:
+                    id, function = tc['id'], tc['function']
+                    name, arguments = function['name'], function['arguments']
+                    if name == 'Finish':
+                        node = ExecutionNode(role='tool', message={
+                            'name':name,
+                            'arguments':arguments,
+                            'response':''
+                        })
+                        break
+                    else:
+                        for message2 in conversation[index+1:]:
+                            if message2['role'] == 'tool'  and message2['tool_call_id'] == id:
+                                response = message2['content']
+                                node = ExecutionNode(role='tool', message={
+                                    'name':name,
+                                    'arguments':arguments,
+                                    'response':response
+                                    })
+                                eg.add_node(node)
+                                eg[last_node,node] = None
+                                last_node = node
+                                break
             else:
                 node = ExecutionNode(role='assistant',
                                         message=message['content'])
-                
             
+                
         else:
             raise NotImplementedError(f'Unkown role {role}')
         
         index = index + 1
-        eg.add_node(node)
-        eg[last_node,node] = None
-        last_node = node
+        if last_node != node:
+            eg.add_node(node)
+            eg[last_node,node] = None
+            last_node = node
     
     eg = eg.reduce_graph_to_sequence()
     
@@ -189,4 +215,4 @@ if __name__=='__main__':
             else:
                 answer_dict[qid] = process_valid_data(method,data_dict['answer_generation'])
     print(f'Converted {len(answer_dict)} answers')
-    json.dump(answer_dict,open(output,'w'))
+    json.dump(answer_dict,open(output,'w'), indent=2)
