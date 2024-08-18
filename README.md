@@ -62,7 +62,7 @@ You need to first specify your configurations in `server/config.yml` before runn
  - `api_base`: The API base for OpenAI models if you are using Azure.
  - `model`: The OpenAI model to use. The default value is gpt-4-turbo-preview.
  - `temperature`: The temperature for LLM simulation. The default value is 0.
- - `toolbench_url`: The real ToolBench server URL. The default value is `http://8.218.239.54:8080/rapidapi`.
+ - `toolbench_url`: The real ToolBench server URL. The default value is `http://39.105.143.28:8080/rapidapi`.
  - `tools_folder`: The tools environment folder path. Default to `./tools`.
  - `cache_folder`: The cache folder path. Default to `./tool_response_cache`.
  - `is_save`: A flag to indicate whether to save real and simulated responses into the cache. The new cache is saved at `./tool_response_new_cache`.
