@@ -316,7 +316,7 @@ class DFS_tree_search(base_search_method):
                             "role":"tool",
                             # "name": new_message["function_call"]["name"],
                             "name": tool_calls[i]["function"]["name"],
-                            "content": now_node.observation,
+                            "content": temp_now_node.observation,
                             "tool_call_id": tool_calls[i]['id'],
                         })
             else:
