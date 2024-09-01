@@ -194,6 +194,7 @@ class DFS_tree_search(base_search_method):
             ) for callback in self.callbacks]
             new_message, error_code, total_tokens = self.llm.parse(
                 self.io_func.functions, process_id=self.process_id)
+            new_message = {k:v for k,v in new_message.items() if v != None}
             # on_llm_end
             [callback.on_llm_end(
                 depth=now_depth,
