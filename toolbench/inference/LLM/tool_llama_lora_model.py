@@ -123,7 +123,7 @@ class ToolLLaMALoRA:
         thought, action, action_input = react_parser(predictions)
         message = {
             "role": "assistant",
-            "content": thought,
+            "content": predictions,
             "function_call": {
                 "name": action,
                 "arguments": action_input

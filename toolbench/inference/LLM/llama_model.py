@@ -107,7 +107,8 @@ class LlamaModel:
             # input()
         message = {
             "role": "assistant",
-            "content": thought,
+            # "content": thought,
+            "content": predictions,
             "function_call": {
                 "name": action,
                 "arguments": action_input
