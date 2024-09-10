@@ -49,7 +49,7 @@ def prepare_tool_name_and_url(info):
     standard_category = standard_category.replace("__", "_")
     
     tool_name = info.tool_name
-    api_name = change_name(standardize(info.api_name)).split("_for_")[0]
+    api_name = change_name(standardize(info.api_name)).split(f"_for_{tool_name}")[0]
     if not tool_name.endswith(f"_for_{standard_category}"):
         tool_name = standardize(info.tool_name)
         code_string = f"""from my_tools.{standard_category}.{tool_name}.api import {api_name}"""
