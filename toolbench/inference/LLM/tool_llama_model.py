@@ -46,8 +46,8 @@ class ToolLLaMA:
             gen_params = {
                 "model": "",
                 "prompt": prompt,
-                "temperature": 0.5,
-                "max_new_tokens": 512,
+                "temperature": 0,
+                "max_new_tokens": 1024,
                 "stop": "</s>",
                 "stop_token_ids": None,
                 "echo": False
@@ -99,7 +99,7 @@ class ToolLLaMA:
         if self.template == "tool-llama":
             roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
         elif self.template == "tool-llama-single-round" or self.template == "tool-llama-multi-rounds":
-            roles = {"system": conv.roles[0], "user": conv.roles[1], "function": conv.roles[2], "assistant": conv.roles[3]}
+            roles = {"system": conv.roles[0], "user": conv.roles[1], "function": conv.roles[2], "tool": conv.roles[2], "assistant": conv.roles[3]}
 
         self.time = time.time()
         conversation_history = self.conversation_history
