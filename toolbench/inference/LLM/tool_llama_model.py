@@ -13,6 +13,7 @@ from transformers import (
 from toolbench.utils import process_system_message
 from toolbench.model.model_adapter import get_conversation_template
 from toolbench.inference.utils import SimpleChatIO, generate_stream, react_parser
+import json, string, random
 
 
 class ToolLLaMA:
@@ -30,14 +31,14 @@ class ToolLLaMA:
         self.max_sequence_length = max_sequence_length
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=False, model_max_length=self.max_sequence_length)
         self.model = AutoModelForCausalLM.from_pretrained(
-            model_name_or_path, low_cpu_mem_usage=True
+            model_name_or_path, low_cpu_mem_usage=True, device_map='auto'
         )
         if self.tokenizer.pad_token_id == None:
             self.tokenizer.add_special_tokens({"bos_token": "<s>", "eos_token": "</s>", "pad_token": "<pad>"})
             self.model.resize_token_embeddings(len(self.tokenizer))
-        self.use_gpu = (True if device == "cuda" else False)
-        if (device == "cuda" and not cpu_offloading) or device == "mps":
-            self.model.to(device)
+        self.use_gpu = (True if device.startswith("cuda") else False)
+        # if (device == "cuda" and not cpu_offloading) or device == "mps":
+        #     self.model.to(device)
         self.chatio = SimpleChatIO()
 
     def prediction(self, prompt: str, stop: Optional[List[str]] = None) -> str:
@@ -73,8 +74,17 @@ class ToolLLaMA:
         print("before_print"+"*"*50)
         for message in self.conversation_history:
             print_obj = f"{message['role']}: {message['content']} "
+            # if "function_call" in message.keys():
+            #     print_obj = print_obj + f"function_call: {message['function_call']}"
             if "function_call" in message.keys():
                 print_obj = print_obj + f"function_call: {message['function_call']}"
+            if 'tool_calls' in message.keys():
+                print_obj = print_obj + f"tool_calls: {message['tool_calls']}"
+                print_obj = print_obj + f"number of tool calls: {len(message['tool_calls'])}"
+            if detailed:
+                print_obj = print_obj + f"function_call: {message['function_call']}"
+                print_obj = print_obj + f"tool_calls: {message['tool_calls']}"
+                print_obj = print_obj + f"function_call_id: {message['function_call_id']}"
             print_obj += ""
             print(
                 colored(
@@ -84,7 +94,7 @@ class ToolLLaMA:
             )
         print("end_print"+"*"*50)
 
-    def parse(self, functions, process_id, **args):
+    def parse(self, tools, process_id, **args):
         conv = get_conversation_template(self.template)
         if self.template == "tool-llama":
             roles = {"human": conv.roles[0], "gpt": conv.roles[1]}
@@ -93,16 +103,20 @@ class ToolLLaMA:
 
         self.time = time.time()
         conversation_history = self.conversation_history
+
+        if tools != []:
+            functions = [tool['function'] for tool in tools]
+
+
         prompt = ''
         for message in conversation_history:
             role = roles[message['role']]
             content = message['content']
-            if role == "System" and functions != []:
-                content = process_system_message(content, functions)
+            if role == "System" and tools != []:
+                content = process_system_message(content, functions=functions)
             prompt += f"{role}: {content}\n"
         prompt += "Assistant:\n"
-        
-        if functions != []:
+        if tools != []:
             predictions = self.prediction(prompt)
         else:
             predictions = self.prediction(prompt)
@@ -113,31 +127,66 @@ class ToolLLaMA:
 
         # react format prediction
         thought, action, action_input = react_parser(predictions)
+        try:
+            action_input = json.loads(action_input, indent=2)
+        except:
+            try:
+                import ast
+                action_input = ast.literal_eval(action_input)
+            except:
+                pass
+        random_id = ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])
         message = {
             "role": "assistant",
             "content": predictions,
-            "function_call": {
-                "name": action,
-                "arguments": action_input
-            }
+            "tool_calls": [{
+                'id': f"call_{random_id}",
+                'type': "function",
+                'function': {
+                    'name': action,
+                    'arguments': action_input
+                }
+            }]
         }
         return message, 0, decoded_token_len
 
 
 if __name__ == "__main__":
     # can accept all huggingface LlamaModel family
-    llm = ToolLLaMA("decapoda-research/llama-7b-hf")
+
+    llm = ToolLLaMA("ToolBench/ToolLLaMA-2-7b-v2", device="cuda")
+
     messages = [
         {'role': 'system', 'content': '''You are AutoGPT, you can use many tools(functions) to do
 the following task.\nFirst I will give you the task description, and your task start.\nAt each step, you need to give your thought to analyze the status now and what to do next, with a function call to actually excute your step.\nAfter the call, you will get the call result, and you are now in a new state.\nThen you will analyze your status now, then decide what to do next...\nAfter many (Thought-call) pairs, you finally perform the task, then you can give your finial answer.\nRemember: \n1.the state change is , you can\'t go
 back to the former state, if you want to restart the task, say "I give up and restart".\n2.All the thought is short, at most in 5 sentence.\nLet\'s Begin!\nTask description: Use numbers and basic arithmetic operations (+ - * /) to obtain exactly one number=24. Each
 step, you are only allowed to choose two of the left numbers to obtain a new number. For example, you can combine [3,13,9,7] as 7*9 - 3*13 = 24.\nRemember:\n1.all of the number must be used , and must be used ONCE. So Only when left numbers is exact 24, you will win. So you don\'t succeed when left number = [24, 5]. You succeed when left number = [24]. \n2.all the try takes exactly 3 steps, look
-at the input format'''}, 
-{'role': 'user', 'content': '\nThe real task input is: [1, 2, 4, 7]\nBegin!\n'}
-]
-    functions = [{'name': 'play_24', 'description': '''make your current conbine with the format "x operation y = z (left: aaa) " like "1+2=3, (left: 3 5 7)", then I will tell you whether you win. This is the ONLY way
-to interact with the game, and the total process of a input use 3 steps of call, each step you can only combine 2 of the left numbers, so the count of left numbers decrease from 4 to 1''','parameters':{'type': 'object', 'properties':{}}}]#, 'parameters': {'type': 'object', 'properties': {'input': {'type': 'string', 'description': 'describe what number you want to conbine, and how to conbine.'}}, 'required': ['input']}}]
+at the input format'''},
+        {"role": "user", "content": "What's the weather like in San Francisco, Tokyo, and Paris?"}
+        ]
+
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather in a given location",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "string",
+                            "description": "The city and state, e.g. San Francisco, CA",
+                        },
+                        "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]},
+                    },
+                    "required": ["location"],
+                },
+            },
+        }
+    ]
 
     llm.change_messages(messages)
-    output = llm.parse(functions=functions)
+    output, error_code, token_usage = llm.parse(tools=tools, process_id=0)
     print(output)
+
