@@ -81,6 +81,8 @@ class rapidapi_wrapper(base_env):
             tool_descriptions = self.build_tool_description(data_dict)
         else:
             data_dict = self.fetch_api_json(query_json)
+            if len(data_dict["api_list"])!= len(tool_descriptions):
+                tool_descriptions = self.build_tool_description(data_dict)
 
         for k,api_json in enumerate(data_dict["api_list"]):
             standard_tool_name = tool_descriptions[k][0]
