@@ -220,7 +220,9 @@ def check_result(processes_value: dict):
     if 'response' not in processes_value:
         return False
     response = str(processes_value['response'])
-    if 'http' in response.lower() or 'connection' in response.lower() or 'rate limit' in response.lower() or 'time out' in response.lower() or 'timed out' in response.lower() or 'does not exist' in response.lower() or '404' in response.lower() or '504' in response.lower() or '500' in response.lower() or 'internal error' in response.lower() or 'API doesn\'t exists' in response.lower() or "API doesn\'t exists" in response.lower() or response == '{\'message\': "API doesn\'t exists"}' or 'Service Not Found' in response:
+    if 'got an unexpected keyword argument' in response.lower():
+        return True
+    elif 'http' in response.lower() or 'connection' in response.lower() or 'rate limit' in response.lower() or 'time out' in response.lower() or 'timed out' in response.lower() or 'does not exist' in response.lower() or '404' in response.lower() or '504' in response.lower() or '500' in response.lower() or 'internal error' in response.lower() or 'API doesn\'t exists' in response.lower() or "API doesn\'t exists" in response.lower() or response == '{\'message\': "API doesn\'t exists"}' or 'Service Not Found' in response:
         return False
     elif 'authoriz' in response.lower() or 'authenticat' in response.lower() or 'unauthorized' in response.lower() or 'blocked user' in response.lower() or 'unsubscribe' in response.lower() or 'blocked' in response.lower() or '401' in response.lower() or '403' in response.lower() or 'credential' in response.lower() or 'unauthenticated' in response.lower() or 'disabled for your subscription' in response.lower() or 'ACCESS_DENIED' in response:
         return False
@@ -272,6 +274,44 @@ Note that:
 - your response should be around 100 to 200 words, containing rich information given the api input parameters. Keep Your answer short and simple.
 - your response must be effective and have practical content.
 - if the api response example if null or ineffective, ignore the example and give your independent response.
+
+API calls may fail for various reasons, such as invalid input parameters, authentication issues, or server errors. Your goal is to generate a response that accurately reflects the API's intended functionality, even if the input parameters are incorrect. Your response should be informative and relevant to the API's purpose, providing a clear and concise explanation of the expected output based on the input provided.
+Here is an example:
+API doc
+{
+    "name": "properties/get-broadband",
+    "url": "https://zoopla.p.rapidapi.com/properties/get-broadband",
+    "description": "Get broadband information",
+    "method": "GET",
+    "required_parameters": [
+        {
+            "name": "listing_id",
+            "type": "NUMBER",
+            "description": "The value of listing_id field returned in .../properties/list endpoint",
+            "default": "56354192"
+        }
+    ],
+    "optional_parameters": [],
+    "code": "import requests\n\nurl = \"https://zoopla.p.rapidapi.com/properties/get-broadband\"\nquerystring = {\"listing_id\": \"56354192\"}\n\nheaders = {\n            \"X-RapidAPI-Key\": \"SIGN-UP-FOR-KEY\",\n            \"X-RapidAPI-Host\": \"zoopla.p.rapidapi.com\"\n        }\n\nresponse = requests.get(url, headers=headers, params=querystring)\nprint(response.json())\n",
+    "convert_code": "import requests\n\nurl = \"https://zoopla.p.rapidapi.com/properties/get-broadband\"\nquerystring = {\"listing_id\": \"56354192\"}\n\nheaders = {\n            \"X-RapidAPI-Key\": \"SIGN-UP-FOR-KEY\",\n            \"X-RapidAPI-Host\": \"zoopla.p.rapidapi.com\"\n        }\n\nresponse = requests.get(url, headers=headers, params=querystring)\nprint(response.json())\n",
+    "test_endpoint": "",
+    "statuscode": 200,
+    "schema": {}
+}
+Request:
+    data = {
+        "category": "Business",
+        "tool_name": "zoopla_v2",
+        "api_name": "properties_get_broadband",
+        "tool_input": {'listing_id': '456789', "abdc": 11123},
+        "strip": "",
+        "toolbench_key": "xxx"
+    }
+Response:
+    {"error":"Function executing from toolenv.tools.Business.zoopla_v2.api import properties_get_broadband error...\nproperties_get_broadband() got an unexpected keyword argument 'abdc'","response":""}
+
+
+Your will also be given successful examples of API calls and their expected outputs, based on which you will generate the response for the given input.
     '''
     system_prompt = {"role": "system", "content": system_prompt}
     # user prompt, truncated to 2048 characters if too long
