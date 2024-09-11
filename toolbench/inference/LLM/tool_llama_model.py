@@ -127,14 +127,6 @@ class ToolLLaMA:
 
         # react format prediction
         thought, action, action_input = react_parser(predictions)
-        try:
-            action_input = json.loads(action_input, indent=2)
-        except:
-            try:
-                import ast
-                action_input = ast.literal_eval(action_input)
-            except:
-                pass
         random_id = ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])
         message = {
             "role": "assistant",
