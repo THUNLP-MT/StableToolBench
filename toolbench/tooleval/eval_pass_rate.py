@@ -99,7 +99,7 @@ if __name__ == "__main__":
                 query = example["query"]
                 tool_names = []
                 for tool_dict in example["available_tools"]:
-                    tool_name = tool_dict["name"]
+                    tool_name = tool_dict["function"]['name']
                     tool_names.append(tool_name)
                 answer_steps, final_step = get_steps(example)
                 if query_id not in label_cnt:
