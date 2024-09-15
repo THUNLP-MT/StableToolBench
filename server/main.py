@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 import uvicorn
 import time
+from datetime import datetime
 import json
 import os, yaml
 import requests
@@ -20,6 +21,7 @@ config_file='config.yml'
 CONFIG = yaml.load(open(config_file, 'r'), Loader=yaml.FullLoader)
 print(CONFIG)
 CACHE_FOLDER = CONFIG['cache_folder']
+LOG_FILE = CONFIG['log_file']
 # OpenAI API
 from openai import OpenAI
 if 'api_base' in CONFIG:
@@ -59,6 +61,20 @@ def prepare_tool_name_and_url(info):
         code_string = f"""from my_tools.{standard_category}.{tmp_tool_name}.api import {api_name}"""
     return tool_name, standard_category, api_name, code_string
 
+def write_log(request, response, type):
+    log = """\
+>>>>>>>>>>>>>>>>>>>>>>>
+TIME: {curr_time}
+TYPE: {type}
+REQUEST: {request}
+RESPONSE: {response}
+<<<<<<<<<<<<<<<<<<<<<<<
+"""
+    with open(LOG_FILE, "a") as f:
+        curr_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(log.format(curr_time=curr_time, type=type, request=request, response=response))
+
+
 @app.post('/virtual')
 # @retry(wait=wait_random_exponential(min=1, max=40), stop=stop_after_attempt(1))
 def get_virtual_response(request: Request, info: Info):
@@ -69,6 +85,7 @@ def get_virtual_response(request: Request, info: Info):
     tool_name_original = info.tool_name
 
     if api_name == "chat_with_user":
+        write_log(request=info, response=real_response, type="chat_with_user")
         return {"error": "", "response": "Chat with user."}
     
     try:
@@ -83,6 +100,7 @@ def get_virtual_response(request: Request, info: Info):
             print(type(tool_input))
             print(tool_input)
             response_dict = {"error": f"Tool input parse error...\n", "response": ""}
+            write_log(request=info, response=response_dict, type="tool_input_parse_error")
             return response_dict
     if not os.path.exists(CACHE_FOLDER):
         os.mkdir(CACHE_FOLDER)
@@ -99,6 +117,7 @@ def get_virtual_response(request: Request, info: Info):
                     if str(tool_input) in cache:
                         print("using cached real response")
                         response_dict = cache[str(tool_input)]
+                        write_log(request=info, response=response_dict, type="cached_real_response")
                         return response_dict
     except Exception as e:
         print(f"Loading cache error: {e}")
@@ -133,6 +152,7 @@ def get_virtual_response(request: Request, info: Info):
         real_response = real_response.json() 
         if check_result(real_response):
             print("returning real_response")
+            write_log(request=info, response=real_response, type="real_response")
             if CONFIG['is_save']:
                 save_cache(cache, tool_input, real_response, standard_category, tool_name, api_name)
             return real_response
@@ -190,7 +210,7 @@ def get_virtual_response(request: Request, info: Info):
 
     if CONFIG['is_save']:
         save_cache(cache, tool_input, result, standard_category, tool_name, api_name)
-
+    write_log(request=info, response=result, type="fake_response")
     if not isinstance(result, dict):
         return json.loads(result)
     else:
@@ -224,7 +244,7 @@ def check_result(processes_value: dict):
         return True
     elif 'rate limit' in response.lower() or 'time out' in response.lower() or 'timed out' in response.lower() or 'does not exist' in response.lower() or '404' in response.lower() or '504' in response.lower() or '500' in response.lower() or 'internal error' in response.lower() or 'API doesn\'t exists' in response.lower() or "API doesn\'t exists" in response.lower() or response == '{\'message\': "API doesn\'t exists"}' or 'Service Not Found' in response:
         return False
-    elif 'authoriz' in response.lower() or 'authenticat' in response.lower() or 'unauthorized' in response.lower() or 'blocked user' in response.lower() or 'unsubscribe' in response.lower() or 'blocked' in response.lower() or '401' in response.lower() or '403' in response.lower() or 'credential' in response.lower() or 'unauthenticated' in response.lower() or 'disabled for your subscription' in response.lower() or 'ACCESS_DENIED' in response:
+    elif 'authoriz' in response.lower() or 'authenticat' in response.lower() or 'unauthorized' in response.lower() or 'blocked user' in response.lower() or 'unsubscribe' in response.lower() or 'blocked' in response.lower() or '401' in response.lower() or '403' in response.lower() or 'credential' in response.lower() or 'unauthenticated' in response.lower() or 'disabled for your subscription' in response.lower() or 'ACCESS_DENIED' in response or 'invalid consumer key' in response.lower():
         return False
     elif 'parameter' in response.lower() or 'parse' in response.lower() or 'is not defined' in response.lower():
         return False

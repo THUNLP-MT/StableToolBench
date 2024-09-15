@@ -7,3 +7,4 @@ tools_folder: "./tools"
 cache_folder: "./tool_response_cache"
 is_save: true
 port: 8080
+log_file: "./server.log"
