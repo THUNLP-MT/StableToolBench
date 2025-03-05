@@ -23,6 +23,10 @@ Welcome to **StableToolBench**. Faced with the instability of Tool Learning benc
 ## Note for Applying ToolBench keys
 Note that if you have applied a ToolBench key but did not get a response for a long time, please contact Shihao Liang (shihaoliang0828@gmail.com) for further assistance.
 
+## Updates from StableToolBench-MirrorAPI
+* The new API simulation model, named `MirrorAPI`, which is trained to simulate more than 7k tools in ToolBench. You can download it from [huggingface](https://huggingface.co/stabletoolbench/MirrorAPI).
+* The new FAC evaluation for StableToolBench, which takes final answers only into account.
+
 ## Updates
 - **[2024.09.15]** We found there exist some problems in the inference codes of ToolLLaMA v2 and we update model performance accordingly.
 - **[2024.06.19]** We update the OpenAI API to the newest version, which also support parallel function calling now. We also updated the model performance evaluation using `gpt-4-turbo-2024-04-09`, replacing `gpt-4-turbo-preview`, which we found may produce unstable evaluations. The inference results (run in Feb 2024) can be found on [Huggingface](https://huggingface.co/datasets/stabletoolbench/baselines).
@@ -30,17 +34,45 @@ Note that if you have applied a ToolBench key but did not get a response for a l
 
 ## Features
 Based on the large scale of ToolBench, we introduce the following features to ensure the stability and reality of the benchmark:
+- **MirrorAPI**, which is a trained on real request-response pairs to stably mirror more than 7k API's behaviours.
 - **Virtual API System**, which comprises a caching system and API simulators. The caching system stores API call responses to ensure consistency, while the API simulators, powered by LLMs, are used for unavailable APIs. Note that we keep the large-scale diverse APIs environment from ToolBench.
 - **A New Set of Solvable Queries**. Query solvability is hard to determine on the fly, causing significant randomness and instability. In StableToolBench, we use state-of-the-art LLMs to determine task solvability to filter queries beforehand. We maintain the same query and answer format as ToolBench for seamless transition from it.
-- **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR).
+- **Stable Evaluation System**: Implements a two-phase evaluation process using GPT-4 as an automatic evaluator. It involves judging the solvability of tasks and employing metrics like Solvable Pass Rate (SoPR) and Solvable Win Rate (SoWR). Starting with **MirrorAPI**, we also provide an end-to-end trained evaluator, which takes only input query and final answer into account and gives more stable and straightforward evaluation.
 
 ## The Virtual API Server
 <!-- Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provided three ways to use the virtual API system: the public server for directly calling, a docker container, and the source code. -->
+We now provide two simulating systems, the MirrorAPI server and the GPT based caching system.
+
+Before you run any code, please first set up the environment by running `pip install -r requirements.txt`.
+
+### The MirrorAPI server
+
+#### Downloading Tools and Models
+You need to download a set of tools to start the server. You can use either the tool set we crawled on Apr 2024, which you can download from [HuggingFace](https://huggingface.co/datasets/stabletoolbench/ToolEnv2404) or the tools for the ToolBench/StableToolBench test set, which you can download from [ToolBench](https://github.com/OpenBMB/ToolBench).
+
+We provide two versions of model, the [`MirrorAPI`](https://huggingface.co/stabletoolbench/MirrorAPI),  trained for general tool responses, and [`MirrorAPI-Cache`](https://huggingface.co/stabletoolbench/MirrorAPI-Cache), which is trained on the cache of StableToolBench for better test set tool responses. You can download them from the link above.
+
+
+#### Starting the server
+To start the server, you need to install [`vllm`](https://github.com/vllm-project/vllm). Then you can start a model by running 
+```
+vllm serve {model-path} --api-key EMPTY --port 12345 --served-model-name {model-name}
+``` 
+Then you need to fill the model-name, api-key and port you specified in server/config_mirrorapi.yml (or server/config_mirrorapi_cache.yml if you are running `MirrorAPI-Cache`), along with the tool folder you downloaded tools into. The parameters in the config files are:
+ - `api_key`: The API key for VLLM model.
+ - `api_base`: The API base for VLLM models. Normally `http://127.0.0.1:{port}/v1`
+ - `model`: The {model-name} you specified in VLLM.
+ - `temperature`: The temperature for LLM simulation. The default value is 0.
+ - `tools_folder`: The tools environment folder path. Default to `./tools`.
+ - `port`: The server port to run on, default to 8080. 
+
+Then you can run `python main_mirrorapi.py` or `python main_mirrorapi_cache.py` to run the API server.
+
+
+### The GPT based caching system
+
 Our Virtual API server featured two components, the API simulation system with GPT 4 Turbo and the caching system. We provide two methods to use the virtual API system: [building from source](#building-from-source) and using [our prebuilt Docker](#using-the-prebuilt-docker-image).
 <!-- ### The Public Server -->
-
-### Building from Source
-Before you run any code, please first set up the environment by running `pip install -r requirements.txt`.
 
 To start the server, you need to provide a cache directory and an OpenAI key.
 
@@ -94,7 +126,7 @@ We provide a `Dockerfile` for easy deployment and consistent server environment.
 docker build -t my-fastapi-server .  # Replace 'my-fastapi-server' with your desired image name
 docker run -p {port}:8080 my-fastapi-server  # Replace 'my-fastapi-server' with your image name
 ```
-### Using the Prebuilt Docker Image
+#### Using the Prebuilt Docker Image
 You can also use our prebuilt Docker image from Docker Hub hosted at https://hub.docker.com/repository/docker/zhichengg/stb-docker/general. 
 Before running the docker, you will need to install docker and download the cache files as described in [Building from Source](#building-from-source).
 Then you can run the server using the following command:
@@ -114,11 +146,11 @@ import os
 
 url = 'http://0.0.0.0:8080/virtual'
 data = {
-    "category": "Media",
-    "tool_name": "newapi_for_media",
-    "api_name": "url",
-    "tool_input": {'url': 'https://api.socialmedia.com/friend/photos'},
-    "strip": "",
+    "category": "Artificial_Intelligence_Machine_Learning",
+    "tool_name": "TTSKraken",
+    "api_name": "List Languages",
+    "tool_input": '{}',
+    "strip": "truncate",
     "toolbench_key": ""
 }
 headers = {
@@ -267,9 +299,63 @@ python eval_preference.py \
 ```
 The result files will be stored under the ${SAVE_PATH}.
 
+
+## The MirrorAPI Final-Answer-Correctness (FAC) Evaluation
+
+To run the FAC evaluation, you need to use the converted answer stated above. Then you can run the evaluation by running the following code (also shown in run_fac_eval.sh):
+```bash
+cd  toolbench/tooleval
+
+export MODEL_PATH="Your path to the FAC model"
+export CONVERTED_ANSWER_PATH=../../data_example/model_predictions_converted
+export SAVE_PATH=../../data_example/fac_results
+mkdir -p ${SAVE_PATH}
+
+GROUP="The group name"
+CANDIDATE_MODEL="Your candidiate model"
+python tool_eval.py \
+                    --model_path $MODEL_PATH \
+                    --evaluation_path $MODEL_FILE \
+                    --output_path $SAVE_PATH/$CANDIDATE_MODEL/$GROUP.csv \
+                    --ids ../../solvable_queries_example/test_query_ids/${GROUP}.json
+```
+
+## MirrorAPI Training and Evaluation 
+We also publish the data and metrics used in the training and evaluation of MirrorAPI. The training and testing data can be found at [huggingface](https://huggingface.co/datasets/stabletoolbench/MirrorAPI). The newly created ToolBench test set used to compare real and simulated data can also be found at [huggingface](https://huggingface.co/datasets/stabletoolbench/real_simulated_compare).
+
+We use [FastChat](https://github.com/lm-sys/FastChat) to perform LLM-as-a-Judge. The prompt we used can be found at Table 12 of our paper.
+
+
+
 ### Model Experiments Results
 
+#### MirrorAPI-Cache Based System
 
+**Solvable Pass Rate Score**
+
+We evaluate the results with `gpt-4o`.
+| Method              | I1 Inst  | I1 Cat  | I1 Tool  | I2 Cat  | I2 Inst  | I3 Inst  | Average  |
+|---------------------|---------------|---------------|---------------|---------------|---------------|---------------|---------------|
+| ToolLLaMA v2 CoT   | 28.0±1.9     | 30.5±0.8     | 21.5±0.9     | 19.9±1.0     | 22.3±0.4     | 19.1±0.8     | 22.8±0.8     |
+| ToolLLaMA v2 DFS   | 28.4±0.9     | 32.5±0.8     | 22.2±1.0     | 22.8±1.5     | 19.2±1.6     | 18.6±1.5     | 22.9±1.4     |
+| GPT 4o mini CoT    | 27.8±1.4     | 34.9±0.3     | 34.2±0.5     | 24.5±1.0     | 22.3±2.7     | 20.8±1.5     | 25.9±1.7     |
+| GPT 4o mini DFS    | 26.8±1.4     | 36.4±1.6     | 33.1±1.1     | 25.8±1.7     | 25.8±2.7     | 20.2±0.8     | 26.4±1.6     |
+| GPT 4o CoT         | **33.3±2.0** | 35.1±0.6     | 33.6±0.8     | 32.5±1.7     | **29.6±1.6** | **27.9±3.5** | **32.0±2.2** |
+| GPT 4o DFS        | 32.7±1.9     | **42.3±1.3** | **34.6±1.3** | **32.8±1.5** | 28.3±1.3     | 23.0±1.3     | 30.9±1.7     |
+
+**FAC Score**
+| Method             | I1 Inst | I1 Cat | I1 Tool | I2 Cat | I2 Inst | I3 Inst | Average |
+|--------------------|---------|---------|---------|---------|---------|---------|---------|
+| ToolLLaMA v2 CoT  | 45.4    | 38.6    | 34.2    | 40.3    | 37.7    | 31.1    | 37.9    |
+| ToolLLaMA v2 DFS  | **47.9** | 40.5    | 31.0    | 40.3    | 34.0    | 31.1    | 37.5    |
+| GPT 4o mini CoT   | 42.3    | 39.9    | 38.0    | 44.4    | 36.8    | **36.1** | 39.6    |
+| GPT 4o mini DFS   | 46.0    | 43.8    | 44.3    | 41.1    | 34.9    | 34.4    | 40.8    |
+| GPT 4o CoT        | 45.4    | 43.8    | 44.3    | **54.0** | **45.3** | 32.8    | 44.3    |
+| GPT 4o DFS        | 46.6    | **53.6** | **44.9** | 50.0    | 42.5    | 34.4    | **45.3** |
+
+
+
+#### GPT Based Caching System
 Below are the main results (Inference done in Feb 2024). The win rate for each model is compared with ChatGPT-ReACT. We use `gpt-4-turbo-2024-04-09` as the evaluator. Evaluation done in May 2024.
 
 Note that the ToolLLaMA v2 performance is update on 15 Sep 2024 with the new inference codes. Legacy performance can be found [here](legacy_results.md)
