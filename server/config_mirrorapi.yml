@@ -1,0 +1,6 @@
+api_key: "EMPTY"
+api_base: "http://127.0.0.1:12345/v1"
+temperature: 0.1
+tools_folder: "/root/gzc/StableToolBench/toolenv2404_filtered"
+port: 12001
+model: simulation-250123-qwen25-mixed
