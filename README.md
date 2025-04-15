@@ -107,7 +107,7 @@ cd server
 python main.py
 ```
 The server will be run at `http://localhost:{port}/virtual`. 
-To use the server, you will further need a toolbench key. You can apply one from this [form](https://forms.gle/S4hqVLtnqeXcNTCJA).  
+To use the server, you will further need a toolbench key. You can apply one from this [form](https://forms.gle/oCHHc8DQzhGfiT9r6).  
 
 #### Running the server using Docker
 
