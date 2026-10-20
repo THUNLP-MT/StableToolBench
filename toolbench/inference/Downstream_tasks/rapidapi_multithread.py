@@ -203,8 +203,8 @@ You have access of the following tools:\n'''
                     "type": "object",
                     "properties": {
                     },
-                    "required": [""],
-                    "optional": [""],
+                    "required": [],
+                    "optional": [],
                 }
             }
         }
@@ -253,6 +253,7 @@ You have access of the following tools:\n'''
 
                 templete["parameters"]["properties"][name] = prompt
                 templete["parameters"]["required"].append(name)
+        if "optional_parameters" in api_json:
             for para in api_json["optional_parameters"]:
                 name = standardize(para["name"])
                 name = change_name(name)
